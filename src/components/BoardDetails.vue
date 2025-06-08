@@ -12,12 +12,13 @@
         <div class="flex space-x-4 mb-6">
           <!-- Thumbnail -->
           <div class="w-24 h-24 bg-gray-700 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-th-large text-gray-400 text-2xl"></i>
+            <i :class="['fa-solid',BoardsIcon[board.type]?.icon,'text-2xl']"></i>
+
           </div>
           <!-- Info -->
           <div class="flex-1 text-gray-300">
             <p><span class="font-medium text-gray-100">{{ board.title }}</span></p>
-            <p class="text-sm text-gray-400 mb-2">{{ board.description }}</p>
+            <p><span class="font-medium">Type:</span> {{ board.type }}</p>
             <p><span class="font-medium">Owner:</span> {{ board.owner }}</p>
             <p><span class="font-medium">Created:</span> {{ board.created }}</p>
             <p><span class="font-medium">Last modified:</span> {{ board.modified }}</p>
@@ -36,6 +37,14 @@
   <script setup>
   const props = defineProps({ board: Object })
   const emit = defineEmits(['close','open'])
+
+
+
+  const BoardsIcon = {
+  Document:    { icon: 'fa-file-lines text-blue-500'},
+  Diagram:     { icon: 'fa-project-diagram text-yellow-500'},
+  Codebase:    { icon: 'fa-code text-red-500'},
+}
   </script>
   
   <style scoped>

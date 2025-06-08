@@ -7,7 +7,6 @@ import DeleteBoard from '../components/DeleteBoard.vue'
 import BoardDetails from '../components/BoardDetails.vue'
 import RenameBoard from '../components/RenameBoard.vue'
 
-
 // Create Board menu state & handlers
 const showCreateMenu = ref(false)
 function toggleCreateMenu() {
@@ -23,6 +22,8 @@ const activeRowMenu = ref(null)
 function toggleRowMenu(idx) {
   activeRowMenu.value = activeRowMenu.value === idx ? null : idx
 }
+
+
 
 // Modals state
 const showSharePanel = ref(false)
@@ -71,9 +72,20 @@ function handleRenamed(newName) { console.log('Renamed to:', newName) }
 
 // Sample data
 const boards = ref([
-  { id: 1, title: 'System Architecture', description: 'Collaborative Code Editor', owner: 'mo.zakk', created: 'March 19, 2025', modified: 'Today', location: 'big team' },
-  { id: 2, title: 'Project - Notes', description: '', owner: 'mo.zakk', created: 'May 22, 2025', modified: 'May 22', location: 'big team' }
+  { id: 1, title: 'System Architecture', type: 'Diagram', description: 'Collaborative Code Editor', owner: 'mo.zakk', created: 'March 19, 2025', modified: 'Today', location: 'big team' },
+  { id: 2, title: 'Project - Notes',type: 'Document', description: '', owner: 'mo.zakk', created: 'May 22, 2025', modified: 'May 22', location: 'big team' },
+  { id: 3, title: 'c++ assignemnt',type: 'Codebase', description: '', owner: 'ali', created: 'May 22, 2025', modified: 'june 12', location: 'big team' }
+
 ])
+
+
+
+const BoardsIcon = {
+  Document:    { icon: 'fa-file-lines text-blue-500'},
+  Diagram:     { icon: 'fa-project-diagram text-yellow-500'},
+  Codebase:    { icon: 'fa-code text-red-500'},
+}
+
 </script>
 
 <template>
@@ -105,9 +117,8 @@ const boards = ref([
             </div>
             <div class="relative">
               <select class="bg-gray-700 text-gray-100 px-4 py-2 rounded-lg appearance-none pr-8 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <option>My Boards</option>
                 <option>my boards</option>
-                <option>all</option>
+                <option>All</option>
                 <option>team leader boards</option>
               </select>
               <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
@@ -125,15 +136,15 @@ const boards = ref([
             <div v-if="showCreateMenu" class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg z-20">
               <ul class="divide-y divide-gray-700">
                 <li @click="createBoard('codebase')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
-                  <i class="fa-solid fa-code mr-2 text-gray-300"></i>
+                  <i class="fa-solid fa-code mr-2 text-red-500"></i>
                   <span class="text-gray-100">Codebase</span>
                 </li>
                 <li @click="createBoard('diagram')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
-                  <i class="fa-solid fa-project-diagram mr-2 text-gray-300"></i>
+                  <i class="fa-solid fa-project-diagram mr-2 text-yellow-500"></i>
                   <span class="text-gray-100">Diagram</span>
                 </li>
                 <li @click="createBoard('document')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
-                  <i class="fa-solid fa-file-lines mr-2 text-gray-300"></i>
+                  <i class="fa-solid fa-file-lines mr-2 text-blue-500"></i>
                   <span class="text-gray-100">Document</span>
                 </li>
               </ul>
@@ -147,6 +158,7 @@ const boards = ref([
             <thead class="bg-gray-700">
               <tr class="text-gray-300">
                 <th class="px-6 py-4">Title</th>
+                <th class="px-6 py-4">Type</th>
                 <th class="px-6 py-4">Last Updated</th>
                 <th class="px-6 py-4">Owner</th>
                 <th class="px-6 py-4"></th>
@@ -155,12 +167,13 @@ const boards = ref([
             <tbody>
               <tr v-for="(board, idx) in boards" :key="board.id" class="border-b border-gray-700 hover:bg-gray-700">
                 <td class="px-6 py-4 flex items-center space-x-3">
-                  <i class="fa-solid fa-file-lines text-gray-300 text-2xl"></i>
+                  <i :class="['fa-solid',BoardsIcon[board.type]?.icon || 'fa-file-lines']"></i>
                   <div>
                     <p class="font-medium text-gray-100">{{ board.title }}</p>
                     <p class="text-gray-400 text-sm">{{ board.description }}</p>
                   </div>
                 </td>
+                <td class="px-6 py-4 text-gray-100">{{ board.type }}</td>
                 <td class="px-6 py-4 text-gray-100">{{ board.modified }}</td>
                 <td class="px-6 py-4">
                      <div class="flex items-center space-x-2">
@@ -224,5 +237,6 @@ const boards = ref([
     @close="closeRenamePanel"
     @renamed="handleRenamed"
     />
+
   </div>
 </template>
