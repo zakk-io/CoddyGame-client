@@ -144,7 +144,7 @@ const BoardsIcon = {
                   <span class="text-gray-100">Diagram</span>
                 </li>
                 <li @click="createBoard('document')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
-                  <i class="fa-solid fa-file-lines mr-2 text-blue-500"></i>
+                  <i class="fa-solid fa-file-lines mr-3 text-blue-500"></i>
                   <span class="text-gray-100">Document</span>
                 </li>
               </ul>
