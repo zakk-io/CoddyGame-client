@@ -1,3 +1,8 @@
+<script setup>
+import { RouterLink } from 'vue-router'
+
+</script>
+
 <template>
   <aside class="w-64 bg-gray-800 flex-shrink-0">
     <div class="px-6 py-6 border-b border-gray-700">
@@ -21,15 +26,17 @@
         </div>
       </div>
       <nav class="mt-6 space-y-2">
-        <a href="#" class="flex items-center px-4 py-2 bg-gray-700 rounded-lg text-gray-100">
+        <RouterLink to="workplace" class="flex items-center px-4 py-2  rounded-lg text-gray-100" active-class="bg-gray-700">
           <i class="fa-solid fa-house mr-3"></i>
-          Home
-        </a>
-        <a href="#" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 text-gray-100">
+          Workplace
+        </RouterLink>
+
+        <RouterLink to="settings" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 text-gray-100" active-class="bg-gray-700">
           <i class="fa-solid fa-gear mr-3"></i>
           Settings
-        </a>
-        <a href="#" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 text-gray-100">
+        </RouterLink>
+
+        <a href="#" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 text-gray-100" active-class="bg-gray-700">
           <i class="fa-solid fa-users mr-3"></i>
           Users
         </a>

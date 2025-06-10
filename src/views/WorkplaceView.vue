@@ -96,7 +96,8 @@ const BoardsIcon = {
     <!-- Main Content -->
     <div class="flex-1 flex flex-col">
       <!-- Top Bar -->
-      <Header />
+      <Header :title="'Workplace'" />
+
 
       <!-- Content Area -->
       <main class="p-12 pb-16 bg-gray-900 flex-1">
