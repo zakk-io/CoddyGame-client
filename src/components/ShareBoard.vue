@@ -70,6 +70,9 @@
     emit('shared', { boardName: boardName.value, email: inviteEmail.value })
     emit('close')
   }
+
+
+
   </script>
   
   <style scoped>

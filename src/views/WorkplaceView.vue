@@ -74,16 +74,22 @@ function handleRenamed(newName) { console.log('Renamed to:', newName) }
 const boards = ref([
   { id: 1, title: 'System Architecture', type: 'Diagram', description: 'Collaborative Code Editor', owner: 'mo.zakk', created: 'March 19, 2025', modified: 'Today', location: 'big team' },
   { id: 2, title: 'Project - Notes',type: 'Document', description: '', owner: 'mo.zakk', created: 'May 22, 2025', modified: 'May 22', location: 'big team' },
-  { id: 3, title: 'c++ assignemnt',type: 'Codebase', description: '', owner: 'ali', created: 'May 22, 2025', modified: 'june 12', location: 'big team' }
+  { id: 3, title: 'c++ assignemnt',type: 'cpp', description: '', owner: 'ali', created: 'May 22, 2025', modified: 'june 12', location: 'big team' },
+  { id: 4, title: 'java work',type: 'java', description: '', owner: 'rashid', created: 'april 20, 2024', modified: 'june 12', location: 'big team' }
 
 ])
 
 
 
 const BoardsIcon = {
+  python:    { icon: 'fa-brands fa-python mr-2 text-[#FFD43B]'},
+  cpp:    { icon: 'fa-solid fa-c mr-2 text-[#ff0000]'},
+  java:    { icon: 'fa-brands fa-java mr-2 text-[#74C0FC]'},
+  javascript:    { icon: 'fa-brands fa-js mr-2 text-[#FFD43B]'},
+  php:    { icon: 'fa-brands fa-php mr-2 text-[#B197FC]'},
+
   Document:    { icon: 'fa-file-lines text-blue-500'},
   Diagram:     { icon: 'fa-project-diagram text-yellow-500'},
-  Codebase:    { icon: 'fa-code text-red-500'},
 }
 
 </script>
@@ -136,17 +142,33 @@ const BoardsIcon = {
             </button>
             <div v-if="showCreateMenu" class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg z-20">
               <ul class="divide-y divide-gray-700">
-                <li @click="createBoard('codebase')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
-                  <i class="fa-solid fa-code mr-2 text-red-500"></i>
-                  <span class="text-gray-100">Codebase</span>
+                <li @click="createBoard('python')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
+                  <i class="fa-brands fa-python mr-2 text-[#FFD43B]"></i>
+                  <span class="text-gray-100">Python</span>
                 </li>
-                <li @click="createBoard('diagram')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
-                  <i class="fa-solid fa-project-diagram mr-2 text-yellow-500"></i>
-                  <span class="text-gray-100">Diagram</span>
+                <li @click="createBoard('cpp')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
+                  <i class="fa-solid fa-c mr-2 text-[#ff0000]"></i>
+                  <span class="text-gray-100">C/C++</span>
+                </li>
+                <li @click="createBoard('java')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
+                  <i class="fa-brands fa-java mr-2 text-[#74C0FC]"></i>
+                  <span class="text-gray-100">Java</span>
+                </li>
+                <li @click="createBoard('javascript')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
+                  <i class="fa-brands fa-js mr-2 text-[#FFD43B]"></i>
+                  <span class="text-gray-100">Javascript</span>
+                </li>
+                <li @click="createBoard('php')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
+                  <i class="fa-brands fa-php mr-2 text-[#B197FC]"></i>
+                  <span class="text-gray-100">PHP</span>
                 </li>
                 <li @click="createBoard('document')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
                   <i class="fa-solid fa-file-lines mr-3 text-blue-500"></i>
                   <span class="text-gray-100">Document</span>
+                </li>
+                <li @click="createBoard('diagram')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
+                  <i class="fa-solid fa-project-diagram mr-2 text-yellow-500"></i>
+                  <span class="text-gray-100">Diagram</span>
                 </li>
               </ul>
             </div>

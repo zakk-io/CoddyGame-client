@@ -40,10 +40,15 @@
 
 
 
-  const BoardsIcon = {
+const BoardsIcon = {
+  python:    { icon: 'fa-brands fa-python mr-2 text-[#FFD43B]'},
+  cpp:    { icon: 'fa-solid fa-c mr-2 text-[#ff0000]'},
+  java:    { icon: 'fa-brands fa-java mr-2 text-[#74C0FC]'},
+  javascript:    { icon: 'fa-brands fa-js mr-2 text-[#FFD43B]'},
+  php:    { icon: 'fa-brands fa-php mr-2 text-[#B197FC]'},
+
   Document:    { icon: 'fa-file-lines text-blue-500'},
   Diagram:     { icon: 'fa-project-diagram text-yellow-500'},
-  Codebase:    { icon: 'fa-code text-red-500'},
 }
   </script>
   
