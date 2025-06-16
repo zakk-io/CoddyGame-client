@@ -14,28 +14,28 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/teams/workplace',
+      path: '/teams/:team_id/workplace',
       name: 'workplace',
       component: WorkplaceView,
     },
     {
-      path: '/teams/settings',
+      path: '/teams/:team_id/settings',
       name: 'team-settings',
       component: TeamProfileView,
     },
 
     {
-      path: '/teams/users/members',
+      path: '/teams/:team_id/users/members',
       name: 'members',
       component: MembersView,
     },
     {
-      path: '/teams/users/invitations',
+      path: '/teams/:team_id/users/invitations',
       name: 'invitations',
       component: InvitationsView,
     },
     {
-      path: '/teams/users/join-requests',
+      path: '/teams/:team_id/users/join-requests',
       name: 'join-requests',
       component: JoinRequestsView,
     },

@@ -1,7 +1,5 @@
 <script setup>
 import { ref } from 'vue'
-import Header from '../components/Header.vue'
-import SideBar from '../components/SideBar.vue'
 import ShareBoard from '../components/ShareBoard.vue'
 import DeleteBoard from '../components/DeleteBoard.vue'
 import BoardDetails from '../components/BoardDetails.vue'
@@ -95,16 +93,6 @@ const BoardsIcon = {
 </script>
 
 <template>
-  <div class="min-h-screen flex">
-    <!-- Sidebar -->
-    <SideBar />
-
-    <!-- Main Content -->
-    <div class="flex-1 flex flex-col">
-      <!-- Top Bar -->
-      <Header :title="'Workplace'" />
-
-
       <!-- Content Area -->
       <main class="p-12 pb-16 bg-gray-900 flex-1">
         <p class="text-gray-400 mb-6">Filter by</p>
@@ -231,7 +219,6 @@ const BoardsIcon = {
           </table>
         </div>
       </main>
-    </div>
     <!-- Share Board Modal -->
     <ShareBoard
       v-if="showSharePanel"
@@ -261,5 +248,4 @@ const BoardsIcon = {
     @renamed="handleRenamed"
     />
 
-  </div>
 </template>

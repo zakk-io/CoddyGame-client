@@ -38,10 +38,6 @@ function cancelInvitation(inv) {
 </script>
 
 <template>
-  <div class="min-h-screen flex bg-gray-900 text-gray-100">
-    <SideBar />
-    <div class="flex-1 flex flex-col">
-      <Header :title="'Invitations'" />
       <UsersTabs />
 
       <div class="flex-1 overflow-auto p-6">
@@ -96,7 +92,4 @@ function cancelInvitation(inv) {
           </table>
         </div>
       </div>
-
-    </div>
-  </div>
 </template>

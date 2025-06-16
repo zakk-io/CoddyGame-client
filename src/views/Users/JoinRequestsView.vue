@@ -36,10 +36,6 @@ function rejectRequest(req) {
 </script>
 
 <template>
-  <div class="min-h-screen flex bg-gray-900 text-gray-100">
-    <SideBar />
-    <div class="flex-1 flex flex-col">
-      <Header :title="'Join Requests'" />
       <UsersTabs />
 
 
@@ -115,7 +111,4 @@ function rejectRequest(req) {
           </table>
         </div>
       </div>
-
-    </div>
-  </div>
 </template>

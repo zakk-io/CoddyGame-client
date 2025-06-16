@@ -28,13 +28,6 @@ function deleteTeam() {
 </script>
 
 <template>
-  <div class="min-h-screen flex bg-gray-900 text-gray-100">
-    <SideBar />
-
-    <div class="flex-1 flex flex-col">
-        <Header :title="'Settings'" />
-
-
       <div class="flex-1 overflow-auto p-6 flex">
         <div class="flex-1 bg-gray-800 p-8 rounded-lg shadow-lg flex flex-col">
           <!-- Title + Avatar -->
@@ -129,6 +122,4 @@ function deleteTeam() {
           </div>
         </div>
       </div>
-    </div>
-  </div>
 </template>
