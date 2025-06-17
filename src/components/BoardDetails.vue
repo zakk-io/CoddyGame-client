@@ -12,17 +12,16 @@
         <div class="flex space-x-4 mb-6">
           <!-- Thumbnail -->
           <div class="w-24 h-24 bg-gray-700 rounded-lg flex items-center justify-center">
-            <i :class="['fa-solid',BoardsIcon[board.type]?.icon,'text-2xl']"></i>
+            <i :class="['fa-solid',BoardsIcon[board.language || board.type]?.icon,'text-2xl']"></i>
 
           </div>
           <!-- Info -->
           <div class="flex-1 text-gray-300">
-            <p><span class="font-medium text-gray-100">{{ board.title }}</span></p>
-            <p><span class="font-medium">Type:</span> {{ board.type }}</p>
-            <p><span class="font-medium">Owner:</span> {{ board.owner }}</p>
-            <p><span class="font-medium">Created:</span> {{ board.created }}</p>
-            <p><span class="font-medium">Last modified:</span> {{ board.modified }}</p>
-            <p><span class="font-medium">Team:</span> {{ board.location }}</p>
+            <p><span class="font-medium text-gray-100">{{ board.name }}</span></p>
+            <p><span class="font-medium">Type:</span> {{ board.language || board.type }}</p>
+            <p><span class="font-medium">Owner:</span> {{ board.creator.username }}</p>
+            <p><span class="font-medium">Created:</span> {{ formatDate(board.createdAt) }}</p>
+            <p><span class="font-medium">Last modified:</span> {{ timeAgo(board.updatedAt) }}</p>
           </div>
         </div>
         <!-- Actions -->
@@ -40,16 +39,32 @@
 
 
 
-const BoardsIcon = {
+  const BoardsIcon = {
   python:    { icon: 'fa-brands fa-python mr-2 text-[#FFD43B]'},
   cpp:    { icon: 'fa-solid fa-c mr-2 text-[#ff0000]'},
   java:    { icon: 'fa-brands fa-java mr-2 text-[#74C0FC]'},
   javascript:    { icon: 'fa-brands fa-js mr-2 text-[#FFD43B]'},
   php:    { icon: 'fa-brands fa-php mr-2 text-[#B197FC]'},
 
-  Document:    { icon: 'fa-file-lines text-blue-500'},
-  Diagram:     { icon: 'fa-project-diagram text-yellow-500'},
+  document:    { icon: 'fa-file-lines text-blue-500'},
+  whiteboard:     { icon: 'fa-project-diagram text-yellow-500'},
 }
+
+
+
+
+import { formatDistanceToNow } from 'date-fns'
+
+// helper you can call from the template:
+const timeAgo = isoString =>
+  formatDistanceToNow(new Date(isoString), { addSuffix: true })
+
+const formatDate = iso =>
+  new Date(iso).toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',   // "May" or "5" if you prefer numeric
+    day: 'numeric'
+  })
   </script>
   
   <style scoped>

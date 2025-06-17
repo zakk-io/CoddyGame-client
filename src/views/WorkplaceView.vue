@@ -1,11 +1,14 @@
 <script setup>
-import { ref,onMounted,inject,watchEffect } from 'vue'
+import { ref,onMounted,watchEffect,inject } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 const route = useRoute()
 import ShareBoard from '../components/ShareBoard.vue'
 import DeleteBoard from '../components/DeleteBoard.vue'
 import BoardDetails from '../components/BoardDetails.vue'
 import RenameBoard from '../components/RenameBoard.vue'
+
+
+const boards = inject('boards', ref([]))
 
 // Create Board menu state & handlers
 const showCreateMenu = ref(false)
@@ -48,6 +51,8 @@ function onRowAction(action, board) {
     return
   }
   if (action === 'details') {
+     console.log(board);
+     
     detailsBoard.value = board
     showDetailsPanel.value = true
     return
@@ -71,13 +76,7 @@ function closeRenamePanel() { showRenamePanel.value = false }
 function handleRenamed(newName) { console.log('Renamed to:', newName) }
 
 // Sample data
-const boards = ref([
-  { id: 1, title: 'System Architecture', type: 'Diagram', description: 'Collaborative Code Editor', owner: 'mo.zakk', created: 'March 19, 2025', modified: 'Today', location: 'big team' },
-  { id: 2, title: 'Project - Notes',type: 'Document', description: '', owner: 'mo.zakk', created: 'May 22, 2025', modified: 'May 22', location: 'big team' },
-  { id: 3, title: 'c++ assignemnt',type: 'cpp', description: '', owner: 'ali', created: 'May 22, 2025', modified: 'june 12', location: 'big team' },
-  { id: 4, title: 'java work',type: 'java', description: '', owner: 'rashid', created: 'april 20, 2024', modified: 'june 12', location: 'big team' }
 
-])
 
 
 
@@ -88,11 +87,17 @@ const BoardsIcon = {
   javascript:    { icon: 'fa-brands fa-js mr-2 text-[#FFD43B]'},
   php:    { icon: 'fa-brands fa-php mr-2 text-[#B197FC]'},
 
-  Document:    { icon: 'fa-file-lines text-blue-500'},
-  Diagram:     { icon: 'fa-project-diagram text-yellow-500'},
+  document:    { icon: 'fa-file-lines text-blue-500'},
+  whiteboard:     { icon: 'fa-project-diagram text-yellow-500'},
 }
 
 
+
+import { formatDistanceToNow } from 'date-fns'
+
+// helper you can call from the template:
+const timeAgo = isoString =>
+  formatDistanceToNow(new Date(isoString), { addSuffix: true })
 
 
 </script>
@@ -108,7 +113,7 @@ const BoardsIcon = {
               <select class="bg-gray-700 text-gray-100 px-4 py-2 rounded-lg appearance-none pr-8 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 <option>All</option>
                 <option>codebase</option>
-                <option>diagram</option>
+                <option>whiteboard</option>
                 <option>document</option>
               </select>
               <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
@@ -161,7 +166,7 @@ const BoardsIcon = {
                 </li>
                 <li @click="createBoard('diagram')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
                   <i class="fa-solid fa-project-diagram mr-2 text-yellow-500"></i>
-                  <span class="text-gray-100">Diagram</span>
+                  <span class="text-gray-100">whiteboard</span>
                 </li>
               </ul>
             </div>
@@ -183,18 +188,18 @@ const BoardsIcon = {
             <tbody>
               <tr v-for="(board, idx) in boards" :key="board.id" class="border-b border-gray-700 hover:bg-gray-700">
                 <td class="px-6 py-4 flex items-center space-x-3">
-                  <i :class="['fa-solid',BoardsIcon[board.type]?.icon || 'fa-file-lines']"></i>
+                  <i :class="['fa-solid',BoardsIcon[board.language || board.type]?.icon || 'fa-file-lines']"></i>
                   <div>
                     <p class="font-medium text-gray-100">{{ board.title }}</p>
                     <p class="text-gray-400 text-sm">{{ board.description }}</p>
                   </div>
                 </td>
-                <td class="px-6 py-4 text-gray-100">{{ board.type }}</td>
-                <td class="px-6 py-4 text-gray-100">{{ board.modified }}</td>
+                <td class="px-6 py-4 text-gray-100">{{ board.language || board.type  }}</td>
+                <td class="px-6 py-4 text-gray-100">{{ timeAgo(board.updatedAt) }}</td>
                 <td class="px-6 py-4">
                      <div class="flex items-center space-x-2">
-                       <img src="https://via.placeholder.com/24" alt="Owner Avatar" class="h-6 w-6 rounded-full bg-gray-600" />
-                       <span class="text-gray-100">{{ board.owner }}</span>
+                       <img :src="board.creator.avatar" alt="Owner Avatar" class="h-6 w-6 rounded-full bg-gray-600" />
+                       <span class="text-gray-100">{{ board.creator.username }}</span>
                      </div>
                 </td>
                 <td class="px-6 py-4 relative text-gray-400 cursor-pointer text-xl">

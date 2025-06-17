@@ -12,9 +12,7 @@ const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
 
 
 const team = ref(null)
-
 provide('team', team)
-
 //fetch team api
 const FetchTeam = async () => {
   const response = await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}`,{
@@ -35,11 +33,38 @@ const FetchTeam = async () => {
 
 
 
-onMounted(() => {
-  //fetch team api
-  FetchTeam()
-  
+
+const boards = ref([])
+provide('boards', boards)
+//fetch team resources
+const FetchTeamResources = async () => {
+  const response = await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/resources`,{
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include'     
+  }) 
+
+  const data = await response.json()
+
+  if(data.status === 'success' && data.code === 200) {
+    boards.value = data.data
+  }
+
+  //handle 404,400,403,500 errors
+}
+
+
+
+
+onMounted(async () => {
+  try {
+    await Promise.all([ FetchTeam(), FetchTeamResources() ])
+  } catch (e) {
+    console.error('Failed to load team or resources:', e)
+  }
 })
+
 </script>
 
 <template>
