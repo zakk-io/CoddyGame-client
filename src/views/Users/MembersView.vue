@@ -66,9 +66,6 @@ function kickUser(member) {
 </script>
 
 <template>
-      <UsersTabs />
-
-      <div class="flex-1 overflow-auto p-6">
         <!-- Alert -->
         <div class="mb-4 bg-indigo-600 text-white rounded-lg px-4 py-2">
           {{ members.length }} members below are in the team.
@@ -152,5 +149,4 @@ function kickUser(member) {
             </tbody>
           </table>
         </div>
-      </div>
 </template>
