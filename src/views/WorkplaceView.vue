@@ -1,5 +1,7 @@
 <script setup>
-import { ref } from 'vue'
+import { ref,onMounted } from 'vue'
+import { RouterView, useRoute } from 'vue-router'
+const route = useRoute()
 import ShareBoard from '../components/ShareBoard.vue'
 import DeleteBoard from '../components/DeleteBoard.vue'
 import BoardDetails from '../components/BoardDetails.vue'

@@ -1,13 +1,20 @@
 <script setup>
-import { ref } from 'vue'
-import Header from '../components/Header.vue'
-import SideBar from '../components/SideBar.vue'
+import { onMounted,ref,watch } from 'vue'
+
+
+
+import { useTeam } from '../composables/useTeam'
+const  team = useTeam()
+
+
+
 
 const teamName = ref('')
 const description = ref('')
 const isPublic = ref(false)
 const membersCount = ref(3)
 const boardsCount = ref(5)
+
 
 
 function updateSettings() {

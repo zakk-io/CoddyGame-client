@@ -1,8 +1,14 @@
 <script setup>
 import { RouterLink,useRoute } from 'vue-router'
-const route = useRoute()
 
-const team_id = route.params.team_id
+const props = defineProps({
+  teamId: {
+    type: String,
+    required: true
+  }
+})
+
+
 </script>
 
 <template>
@@ -28,17 +34,17 @@ const team_id = route.params.team_id
         </div>
       </div>
       <nav class="mt-6 space-y-2">
-        <RouterLink :to="`/teams/${team_id}/workplace`" class="flex items-center px-4 py-2  rounded-lg text-gray-100" active-class="bg-gray-700">
+        <RouterLink :to="`/teams/${teamId}/workplace`" class="flex items-center px-4 py-2  rounded-lg text-gray-100" active-class="bg-gray-700">
           <i class="fa-solid fa-house mr-3"></i>
           Workplace
         </RouterLink>
 
-        <RouterLink :to="`/teams/${team_id}/users/members`" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 text-gray-100" active-class="bg-gray-700">
+        <RouterLink :to="`/teams/${teamId}/users/members`" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 text-gray-100" active-class="bg-gray-700">
           <i class="fa-solid fa-users mr-3"></i>
           Users
         </RouterLink>
 
-        <RouterLink :to="`/teams/${team_id}/settings`" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 text-gray-100" active-class="bg-gray-700">
+        <RouterLink :to="`/teams/${teamId}/settings`" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 text-gray-100" active-class="bg-gray-700">
           <i class="fa-solid fa-gear mr-3"></i>
           Settings
         </RouterLink>
