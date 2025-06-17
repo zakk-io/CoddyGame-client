@@ -1,5 +1,5 @@
 <script setup>
-import { ref,onMounted } from 'vue'
+import { ref,onMounted,inject,watchEffect } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 const route = useRoute()
 import ShareBoard from '../components/ShareBoard.vue'
@@ -91,6 +91,9 @@ const BoardsIcon = {
   Document:    { icon: 'fa-file-lines text-blue-500'},
   Diagram:     { icon: 'fa-project-diagram text-yellow-500'},
 }
+
+
+
 
 </script>
 

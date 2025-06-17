@@ -1,28 +1,72 @@
 <script setup>
-import { onMounted,ref,watch } from 'vue'
-
-
-
-import { useTeam } from '../composables/useTeam'
-const  team = useTeam()
+import {ref,watchEffect,inject } from 'vue'
+import { useRoute } from 'vue-router'
 
 
 
 
 const teamName = ref('')
 const description = ref('')
+const avatarUrl    = ref('')
 const isPublic = ref(false)
 const membersCount = ref(3)
 const boardsCount = ref(5)
 
 
 
-function updateSettings() {
-  console.log('Saving settings', {
+const team = inject('team', null)
+
+watchEffect(() => {
+  if (!team.value) return
+  teamName.value    = team.value.name
+  description.value = team.value.description
+  avatarUrl.value = team.value.avatar
+  isPublic.value    = team.value.type === 'public'
+  membersCount.value = team.value.members_count
+  boardsCount.value  = team.value.resource_count
+})
+
+
+
+const route = useRoute()
+
+
+const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
+
+
+
+
+
+//update team api
+const updateTeam = async () => {
+  const updatedTeam = {
     name: teamName.value,
     description: description.value,
-    isPublic: isPublic.value,
-  })
+    type: isPublic.value ? 'public' : 'private',
+  }
+  const response = await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}`,{
+    method: 'PUT',
+    body : JSON.stringify(updatedTeam),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include'     
+  }) 
+
+  const data = await response.json()
+
+  if(data.status === 'success' && data.code === '200') {
+    team.value.name = data.team.name
+    team.value.description = data.team.description
+    team.value.type = data.team.type
+  }
+
+  //handle 404,400,403,500 errors
+}
+
+
+function updateSettings() {
+  updateTeam()
 }
 
 function leaveTeam() {
@@ -43,7 +87,11 @@ function deleteTeam() {
             <div
               class="h-20 w-20 rounded-lg bg-gray-700 flex items-center justify-center text-3xl font-semibold text-gray-300"
             >
-              <img src="" alt="" srcset="">
+               <img
+                  :src="avatarUrl"
+                  alt="team avatar"
+                  class="h-full w-full object-cover"
+               />
             </div>
           </div>
 

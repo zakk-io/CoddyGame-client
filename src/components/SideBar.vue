@@ -1,5 +1,7 @@
 <script setup>
 import { RouterLink,useRoute } from 'vue-router'
+import {watchEffect,inject,ref } from 'vue'
+
 
 const props = defineProps({
   teamId: {
@@ -7,6 +9,25 @@ const props = defineProps({
     required: true
   }
 })
+
+
+
+
+const avatarUrl    = ref('')
+const teamName     = ref('')
+
+
+
+const team = inject('team', null)
+
+watchEffect(() => {
+  if (!team.value) return
+  avatarUrl.value = team.value.avatar
+  teamName.value = team.value.name  
+})
+
+
+
 
 
 </script>
@@ -17,9 +38,13 @@ const props = defineProps({
       <div class="flex items-center space-x-3">
         <!-- Team Avatar Placeholder -->
         <div class="h-20 w-20 bg-gray-600 flex items-center justify-center text-gray-400">
-          <i class="fa-solid fa-users text-lg"></i>
+          <img
+              :src="avatarUrl"
+              alt="team avatar"
+              class="h-full w-full object-cover"
+          />
         </div>
-        <span class="text-xl font-bold text-gray-100">TeamFlow</span>
+        <span class="text-xl font-bold text-gray-100" >{{ teamName }}</span>
       </div>
     </div>
     <div class="px-4 py-4">
