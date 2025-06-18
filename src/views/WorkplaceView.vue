@@ -15,10 +15,39 @@ const showCreateMenu = ref(false)
 function toggleCreateMenu() {
   showCreateMenu.value = !showCreateMenu.value
 }
-function createBoard(type) {
-  console.log('Create new board:', type)
+
+
+const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
+
+
+
+async function createBoard(type,language) {
+  const data = {type}
+  if(language){
+    data.language = language
+  }
+
+  const resposne = await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/resources`,{
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: {
+     'Content-Type': 'application/json',
+  },
+   credentials: 'include' 
+  })
+
+  const res = await resposne.json()
+
+  if(res.code === 201 && res.status === "success"){
+    boards.value.push(res.data)
+  }
+
+  //handle 400,403,401,500
+
+  
   showCreateMenu.value = false
 }
+
 
 // Row action menu state & handlers
 const activeRowMenu = ref(null)
@@ -96,7 +125,7 @@ function handleRenamed({id,name}) {
 
 const BoardsIcon = {
   python:    { icon: 'fa-brands fa-python mr-2 text-[#FFD43B]'},
-  cpp:    { icon: 'fa-solid fa-c mr-2 text-[#ff0000]'},
+  c:    { icon: 'fa-solid fa-c mr-2 text-[#ff0000]'},
   java:    { icon: 'fa-brands fa-java mr-2 text-[#74C0FC]'},
   javascript:    { icon: 'fa-brands fa-js mr-2 text-[#FFD43B]'},
   php:    { icon: 'fa-brands fa-php mr-2 text-[#B197FC]'},
@@ -110,9 +139,12 @@ const BoardsIcon = {
 import { formatDistanceToNow } from 'date-fns'
 
 // helper you can call from the template:
-const timeAgo = isoString =>
-  formatDistanceToNow(new Date(isoString), { addSuffix: true })
-
+function timeAgo(isoString) {
+  if (!isoString) return ''
+  const d = new Date(isoString)
+  if (isNaN(d.getTime())) return ''
+  return formatDistanceToNow(d, { addSuffix: true })
+}
 
 </script>
 
@@ -144,23 +176,23 @@ const timeAgo = isoString =>
             </button>
             <div v-if="showCreateMenu" class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg z-20">
               <ul class="divide-y divide-gray-700">
-                <li @click="createBoard('python')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
+                <li @click="createBoard('codebase','python')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
                   <i class="fa-brands fa-python mr-2 text-[#FFD43B]"></i>
                   <span class="text-gray-100">Python</span>
                 </li>
-                <li @click="createBoard('cpp')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
+                <li @click="createBoard('codebase','c')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
                   <i class="fa-solid fa-c mr-2 text-[#ff0000]"></i>
                   <span class="text-gray-100">C/C++</span>
                 </li>
-                <li @click="createBoard('java')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
+                <li @click="createBoard('codebase','java')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
                   <i class="fa-brands fa-java mr-2 text-[#74C0FC]"></i>
                   <span class="text-gray-100">Java</span>
                 </li>
-                <li @click="createBoard('javascript')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
+                <li @click="createBoard('codebase','javascript')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
                   <i class="fa-brands fa-js mr-2 text-[#FFD43B]"></i>
                   <span class="text-gray-100">Javascript</span>
                 </li>
-                <li @click="createBoard('php')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
+                <li @click="createBoard('codebase','php')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
                   <i class="fa-brands fa-php mr-2 text-[#B197FC]"></i>
                   <span class="text-gray-100">PHP</span>
                 </li>
@@ -168,7 +200,7 @@ const timeAgo = isoString =>
                   <i class="fa-solid fa-file-lines mr-3 text-blue-500"></i>
                   <span class="text-gray-100">Document</span>
                 </li>
-                <li @click="createBoard('diagram')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
+                <li @click="createBoard('whiteboard')" class="flex items-center px-4 py-2 hover:bg-gray-700 cursor-pointer">
                   <i class="fa-solid fa-project-diagram mr-2 text-yellow-500"></i>
                   <span class="text-gray-100">whiteboard</span>
                 </li>
