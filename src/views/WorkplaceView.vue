@@ -37,6 +37,7 @@ const showDetailsPanel = ref(false)
 const detailsBoard = ref({})
 const showRenamePanel = ref(false)
 const editingBoardToRename = ref('')
+const boardId = ref('')
 
 function onRowAction(action, board) {
   activeRowMenu.value = null
@@ -58,11 +59,12 @@ function onRowAction(action, board) {
     return
   }
   if (action === 'rename') {
-    editingBoardToRename.value = board.title
+    editingBoardToRename.value = board.name
+    boardId.value = board.id
     showRenamePanel.value = true
     return
   }
-  console.log(`${action} ->`, board.title)
+  console.log(`${action} ->`, board.name)
 }
 
 // Modal close/handlers
@@ -73,9 +75,17 @@ function handleDeleted(title) { console.log('Deleted:', title) }
 function closeDetailsPanel() { showDetailsPanel.value = false }
 function openBoard(id) { console.log('Open board id:', id) }
 function closeRenamePanel() { showRenamePanel.value = false }
-function handleRenamed(newName) { console.log('Renamed to:', newName) }
 
-// Sample data
+
+function handleRenamed({id,name}) { 
+  const b = boards.value.find((b) => b.id === id)
+  if (b) {
+    b.name = name 
+    b.updatedAt = new Date().toISOString()                  
+  } 
+}
+
+
 
 
 
@@ -190,7 +200,7 @@ const timeAgo = isoString =>
                 <td class="px-6 py-4 flex items-center space-x-3">
                   <i :class="['fa-solid',BoardsIcon[board.language || board.type]?.icon || 'fa-file-lines']"></i>
                   <div>
-                    <p class="font-medium text-gray-100">{{ board.title }}</p>
+                    <p class="font-medium text-gray-100">{{ board.name }}</p>
                     <p class="text-gray-400 text-sm">{{ board.description }}</p>
                   </div>
                 </td>
@@ -254,6 +264,7 @@ const timeAgo = isoString =>
     <!-- Rename Board Modal -->
     <RenameBoard v-if="showRenamePanel"
     :boardName="editingBoardToRename"
+    :boardId="boardId"
     @close="closeRenamePanel"
     @renamed="handleRenamed"
     />

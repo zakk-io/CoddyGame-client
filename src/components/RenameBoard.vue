@@ -39,18 +39,49 @@
   <script setup>
   import { ref, watch } from 'vue'
   
-  const props = defineProps({ boardName: String })
+  const props = defineProps({
+    boardName: String,
+    boardId:   String,
+  })
+
   const emit = defineEmits(['close', 'renamed'])
   
   const newName = ref(props.boardName || '')
+  const boardId = ref(props.boardId)
+  
+
   
   // Keep local state in sync if prop changes
   watch(() => props.boardName, (val) => {
     newName.value = val
   })
   
+  import {useRoute } from 'vue-router'
+  const route = useRoute()
+
+
+  const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
+
+  //rename board
+  const renameBoard = async () => {
+    await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/resources/${boardId.value}`,{
+      method: 'PATCH',
+      body: JSON.stringify({"name":newName.value}),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include'     
+    }) 
+  
+    //handle 404,400,403,500 errors
+  }
+
   function confirmRename() {
-    emit('renamed', newName.value)
+    renameBoard()
+    emit('renamed', { 
+      id:     props.boardId, 
+      name:   newName.value 
+    })
     emit('close')
   }
   </script>
