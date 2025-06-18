@@ -29,11 +29,31 @@
   </template>
   
   <script setup>
-  const props = defineProps({ boardName: String })
+  const props = defineProps({ boardName: String, boardId:   String })
   const emit = defineEmits(['close', 'deleted'])
   
+
+  import {useRoute } from 'vue-router'
+  const route = useRoute()
+
+  
+
+  const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
+
+  //delete board
+  const deleteBoard = async () => {
+    await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/resources/${props.boardId}`,{
+      method: 'DELETE',
+      credentials: 'include'     
+    }) 
+  
+    //handle 404,400,403,500 errors
+  }
+
+
   function confirmDelete() {
-    emit('deleted', props.boardName)
+    deleteBoard()
+    emit('deleted', {id: props.boardId})
     emit('close')
   }
   </script>

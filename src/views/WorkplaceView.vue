@@ -42,18 +42,17 @@ const boardId = ref('')
 function onRowAction(action, board) {
   activeRowMenu.value = null
   if (action === 'share') {
-    editingBoardTitle.value = board.title
+    editingBoardTitle.value = board.name
     showSharePanel.value = true
     return
   }
   if (action === 'delete') {
-    editingBoardToDelete.value = board.title
+    editingBoardToDelete.value = board.name
+    boardId.value = board.id
     showDeletePanel.value = true
     return
   }
   if (action === 'details') {
-     console.log(board);
-     
     detailsBoard.value = board
     showDetailsPanel.value = true
     return
@@ -71,7 +70,12 @@ function onRowAction(action, board) {
 function closeSharePanel() { showSharePanel.value = false }
 function handleShared(payload) { console.log('Shared:', payload) }
 function closeDeletePanel() { showDeletePanel.value = false }
-function handleDeleted(title) { console.log('Deleted:', title) }
+
+function handleDeleted({id}) {
+  // Option A: replace the array with a filtered copy
+  boards.value = boards.value.filter(b => b.id !== id)
+}
+
 function closeDetailsPanel() { showDetailsPanel.value = false }
 function openBoard(id) { console.log('Open board id:', id) }
 function closeRenamePanel() { showRenamePanel.value = false }
@@ -125,16 +129,6 @@ const timeAgo = isoString =>
                 <option>codebase</option>
                 <option>whiteboard</option>
                 <option>document</option>
-              </select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                <i class="fa-solid fa-chevron-down text-gray-400"></i>
-              </div>
-            </div>
-            <div class="relative">
-              <select class="bg-gray-700 text-gray-100 px-4 py-2 rounded-lg appearance-none pr-8 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <option>my boards</option>
-                <option>All</option>
-                <option>team leader boards</option>
               </select>
               <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                 <i class="fa-solid fa-chevron-down text-gray-400"></i>
@@ -250,6 +244,7 @@ const timeAgo = isoString =>
     <!-- Delete Board Modal -->
     <DeleteBoard v-if="showDeletePanel"
      :boardName="editingBoardToDelete"
+     :boardId="boardId"
      @close="closeDeletePanel"
      @deleted="handleDeleted" 
      />
