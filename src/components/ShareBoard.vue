@@ -54,24 +54,52 @@
   
   <script setup>
   import { ref } from 'vue'
-  const props = defineProps({ boardTitle: String })
+  import { useRoute } from 'vue-router'
+  const route = useRoute()
+  
+  const props = defineProps({ boardTitle: String , boardId:String })
   const emit = defineEmits(['close', 'shared'])
   
   const boardName = ref(props.boardTitle || '')
   const inviteEmail = ref('')
-  const inviteLink = ref('https://app.example.com/board/12345')
+  const inviteLink = ref(`${import.meta.env.VITE_BASE_URI}/teams/${route.params.team_id}/board/${props.boardId}`) // Replace with dynamic link if needed
   
   function copyLink() {
     navigator.clipboard.writeText(inviteLink.value)
   }
   
-  function sendInvites() {
-    console.log('Inviting:', inviteEmail.value, 'to board', boardName.value)
-    emit('shared', { boardName: boardName.value, email: inviteEmail.value })
-    emit('close')
+  async function sendInvites() {
+    try {
+      console.log(inviteEmail.value);
+      
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URI}/api/teams/${route.params.team_id}/send-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include' ,
+        body: JSON.stringify({
+          reciver_email: inviteEmail.value,
+          email_subject: `Invitation to join board: ${boardName.value}`,
+          email_content: `
+            <p>You have been invited to join the board: <strong>${boardName.value}</strong></p>
+            <p>Click the link below to access it:</p>
+            <a href="${inviteLink.value}" target="_blank">${inviteLink.value}</a>
+          `
+        })
+      })
+  
+      const result = await response.json()
+  
+      if (result.status === 'success') {
+        emit('shared', { boardName: boardName.value, email: inviteEmail.value })
+        emit('close')
+      } else {
+        alert(result.message || 'Failed to send invite')
+      }
+    } catch (error) {
+      console.error('Error sending invite:', error)
+      alert('Something went wrong. Please try again.')
+    }
   }
-
-
 
   </script>
   

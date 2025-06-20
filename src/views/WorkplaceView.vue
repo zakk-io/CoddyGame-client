@@ -72,6 +72,7 @@ function onRowAction(action, board) {
   activeRowMenu.value = null
   if (action === 'share') {
     editingBoardTitle.value = board.name
+    boardId.value = board.id
     showSharePanel.value = true
     return
   }
@@ -269,6 +270,7 @@ function timeAgo(isoString) {
     <ShareBoard
       v-if="showSharePanel"
       :boardTitle="editingBoardTitle"
+      :boardId="boardId"
       @close="closeSharePanel"
       @shared="handleShared"
     />
