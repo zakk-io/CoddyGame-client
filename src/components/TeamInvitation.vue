@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed,inject } from 'vue'
 import {useRoute } from 'vue-router'
 const route = useRoute()
 
@@ -30,6 +30,8 @@ import 'vue-toast-notification/dist/theme-sugar.css';
 const $toast = useToast();
 
 
+const invitations = inject('invitations')
+
 
 async function handleInvite() {
   try {
@@ -46,7 +48,7 @@ async function handleInvite() {
   
     if(data.status === 'success' && data.code === '201') {
       $toast.success(data.message);
-      console.log(`Inviting ${email.value} as ${selectedRole.value}`)
+      invitations.value.push(data.invitation)
     }
   } catch (error) {
     console.error(error)
