@@ -16,10 +16,29 @@ function toggleMenu(id) {
   openMenuId.value = openMenuId.value === id ? null : id
 }
 
-function kickUser(member) {
-  // TODO: call API to remove member
-  console.log('Kicking user', member)
-  openMenuId.value = null
+async function kickUser(member) {
+  try {
+  const member_id = member.id
+  const response = await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/members/${member.id}/kick`,{
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include'     
+  }) 
+
+  const data = await response.json()
+
+  if(data.status === 'success' && data.code === '200') {
+    members.value = members.value.filter((m) => m.id != member_id)
+    $toast.success(`${member.username} has been removed from team`);
+    openMenuId.value = null
+  }
+
+  //handle 404,400,403,500 errors
+} catch (error) {
+  console.error(error)
+}
 }
 
 import {useToast} from 'vue-toast-notification';
@@ -52,6 +71,8 @@ try {
 }
 
 }
+
+
 
 </script>
 
