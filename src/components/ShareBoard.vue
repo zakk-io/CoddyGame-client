@@ -66,8 +66,15 @@
   
   function copyLink() {
     navigator.clipboard.writeText(inviteLink.value)
+    $toast.success("send link to your friend");
+
   }
   
+
+import {useToast} from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-sugar.css';
+const $toast = useToast();
+
   async function sendInvites() {
     try {
       console.log(inviteEmail.value);
@@ -90,6 +97,7 @@
       const result = await response.json()
   
       if (result.status === 'success') {
+        $toast.success("board has been shared with email address");
         emit('shared', { boardName: boardName.value, email: inviteEmail.value })
         emit('close')
       } else {
