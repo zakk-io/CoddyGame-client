@@ -1,5 +1,12 @@
 <script setup>
 import { ref, computed } from 'vue'
+import {useRoute } from 'vue-router'
+const route = useRoute()
+
+
+const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
+
+
 
 const props = defineProps({
   show: Boolean,
@@ -12,23 +19,44 @@ const emit = defineEmits(['close', 'invite'])
 
 const email = ref('')
 const selectedRole = ref('editor')
-const roles = ['co leader', 'editor', 'viewer']
+const roles = ['co-leader', 'editor', 'viewer']
 
 // Compute a dynamic invitation URL
-const invitationUrl = computed(() => 
-  `${window.location.origin}/invite`
-)
+const DirectJoinLinkUri = ref('')
 
 function handleInvite() {
   //emit('invite', { email: email.value, role: selectedRole.value })
   console.log(`Inviting ${email.value} as ${selectedRole.value}`)
 }
 
+
+
 function copyLink() {
-  navigator.clipboard.writeText(invitationUrl.value)
+  navigator.clipboard.writeText(DirectJoinLinkUri.value)
+  DirectJoinLinkUri.value = ""
+  
+  //alert action
+}
+
+
+
+async function createJoinLink() {
+  const response = await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/direct-join-link`,{
+    method: 'POST',
+    body: JSON.stringify({"role": selectedRole.value}),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include'     
+  }) 
+
+  const data = await response.json()
+
+  if(data.status === 'success' && data.code === '201') {
+    DirectJoinLinkUri.value = data.link
+  }
 }
 </script>
-
 
 <template>
   <div v-if="show" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-30">
@@ -74,14 +102,14 @@ function copyLink() {
           </div>
         </div>
 
-        <!-- Invitation Link with Copy Button -->
+        <!-- DirectJoinLinkUri Link with Copy Button -->
         <div>
-          <label class="block text-gray-100 mb-2">Invitation Link</label>
-          <div class="flex">
+          <label class="block text-gray-100 mb-2">Direct Join Link</label>
+          <div class="flex mb-2">
             <input
               type="text"
               readonly
-              :value="invitationUrl"
+              :value="DirectJoinLinkUri"
               class="flex-1 bg-gray-700 text-gray-100 px-4 py-2 rounded-l-lg focus:outline-none"
             />
             <button
@@ -91,6 +119,13 @@ function copyLink() {
               <i class="fa-solid fa-copy"></i>
             </button>
           </div>
+          <button
+            @click="createJoinLink"
+            class="text-indigo-600"
+          >
+            Create Direct Join Link
+          </button>
+          <p>expire in 1 day</p>
         </div>
       </div>
 
