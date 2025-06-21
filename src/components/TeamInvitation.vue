@@ -24,36 +24,65 @@ const roles = ['co-leader', 'editor', 'viewer']
 // Compute a dynamic invitation URL
 const DirectJoinLinkUri = ref('')
 
-function handleInvite() {
-  //emit('invite', { email: email.value, role: selectedRole.value })
-  console.log(`Inviting ${email.value} as ${selectedRole.value}`)
+
+import {useToast} from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-sugar.css';
+const $toast = useToast();
+
+
+
+async function handleInvite() {
+  try {
+      const response = await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/members/invitations`,{
+      method: 'POST',
+      body: JSON.stringify({"email":email.value,"role": selectedRole.value}),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include'     
+    }) 
+  
+    const data = await response.json()
+  
+    if(data.status === 'success' && data.code === '201') {
+      $toast.success(data.message);
+      console.log(`Inviting ${email.value} as ${selectedRole.value}`)
+    }
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 
 
 function copyLink() {
   navigator.clipboard.writeText(DirectJoinLinkUri.value)
+  $toast.success("send link to your friend");
   DirectJoinLinkUri.value = ""
   
-  //alert action
+  //notify action
 }
 
 
 
 async function createJoinLink() {
-  const response = await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/direct-join-link`,{
-    method: 'POST',
-    body: JSON.stringify({"role": selectedRole.value}),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include'     
-  }) 
-
-  const data = await response.json()
-
-  if(data.status === 'success' && data.code === '201') {
-    DirectJoinLinkUri.value = data.link
+  try {
+      const response = await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/direct-join-link`,{
+      method: 'POST',
+      body: JSON.stringify({"role": selectedRole.value}),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include'     
+    }) 
+  
+    const data = await response.json()
+  
+    if(data.status === 'success' && data.code === '201') {
+      DirectJoinLinkUri.value = data.link
+    }
+  } catch (error) {
+    console.error(error)
   }
 }
 </script>
