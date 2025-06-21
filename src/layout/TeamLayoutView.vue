@@ -57,9 +57,31 @@ const FetchTeamResources = async () => {
 
 
 
+const members = ref([])
+provide('members', members)
+//fetch team members
+const FetchTeamMembers = async () => {
+  const response = await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/members`,{
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include'     
+  }) 
+
+  const data = await response.json()
+
+  if(data.status === 'success' && data.code === "200") {
+    members.value = data.members
+  }
+
+  //handle 404,400,403,500 errors
+}
+
+
+
 onMounted(async () => {
   try {
-    await Promise.all([ FetchTeam(), FetchTeamResources() ])
+    await Promise.all([ FetchTeam(), FetchTeamResources(), FetchTeamMembers() ])
   } catch (e) {
     console.error('Failed to load team or resources:', e)
   }
