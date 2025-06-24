@@ -1,5 +1,5 @@
 <script setup>
-import { ref,onMounted,watchEffect,inject } from 'vue'
+import { ref,onMounted,watchEffect,inject,computed } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 const route = useRoute()
 import ShareBoard from '../components/ShareBoard.vue'
@@ -136,6 +136,19 @@ const BoardsIcon = {
 }
 
 
+const selectedFilter = ref("All")
+
+const filteredBoards = computed(() => {
+  if (selectedFilter.value === "All") return boards.value
+
+  if (selectedFilter.value === "codebase") {
+    return boards.value.filter(board => board.type === "codebase")
+  }
+
+  return boards.value.filter(board => board.type === selectedFilter.value)
+})
+
+
 
 import { formatDistanceToNow } from 'date-fns'
 
@@ -157,12 +170,13 @@ function timeAgo(isoString) {
           <!-- Filters -->
           <div class="flex space-x-4">
             <div class="relative">
-              <select class="bg-gray-700 text-gray-100 px-4 py-2 rounded-lg appearance-none pr-8 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <option>All</option>
-                <option>codebase</option>
-                <option>whiteboard</option>
-                <option>document</option>
-              </select>
+              <select v-model="selectedFilter" class="bg-gray-700 text-gray-100 px-4 py-2 rounded-lg appearance-none pr-8 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+  <option value="All">All</option>
+  <option value="codebase">Codebase</option>
+  <option value="whiteboard">Whiteboard</option>
+  <option value="document">Document</option>
+</select>
+
               <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                 <i class="fa-solid fa-chevron-down text-gray-400"></i>
               </div>
@@ -223,7 +237,7 @@ function timeAgo(isoString) {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(board, idx) in boards" :key="board.id" class="border-b border-gray-700 hover:bg-gray-700">
+              <tr v-for="(board, idx) in filteredBoards" :key="board.id" class="border-b border-gray-700 hover:bg-gray-700">
                 <td class="px-6 py-4 flex items-center space-x-3">
                   <i :class="['fa-solid',BoardsIcon[board.language || board.type]?.icon || 'fa-file-lines']"></i>
                   <div>
