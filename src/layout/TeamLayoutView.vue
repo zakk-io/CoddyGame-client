@@ -107,9 +107,42 @@ async function fetchInvitations() {
 
 
 
+
+
+const join_requests = ref([])
+provide('join_requests', join_requests)
+//fetch team invitations
+async function fetchjoin_requests() {
+  try {
+    const response = await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/join-requests?status=all`,{
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include'     
+    }) 
+  
+    const data = await response.json()
+  
+    if(data.status === 'success' && data.code === '200') {
+      join_requests.value = data.joinRequests  
+    }
+  
+    //handle 404,400,403,500 errors
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+
+
+
+
+
+
 onMounted(async () => {
   try {
-    await Promise.all([ FetchTeam(), FetchTeamResources(), FetchTeamMembers(), fetchInvitations() ])
+    await Promise.all([ FetchTeam(), FetchTeamResources(), FetchTeamMembers(), fetchInvitations(), fetchjoin_requests() ])
   } catch (e) {
     console.error('Failed to load team or resources:', e)
   }

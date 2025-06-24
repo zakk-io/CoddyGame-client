@@ -1,44 +1,79 @@
 <script setup>
-import { ref, computed } from 'vue'
-import Header from '../../components/Header.vue'
-import SideBar from '../../components/SideBar.vue'
-import UsersTabs from '../../components/UsersTabs.vue'
+import { ref,inject, computed } from 'vue'
 
-// Placeholder join request data
-const requests = ref([
-  {
-    id: 1,
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    role: 'editor',
-    status: 'Pending',
-    avatar: 'https://via.placeholder.com/40?text=JD'
-  },
-  {
-    id: 2,
-    name: 'Jane Smith',
-    email: 'jane.smith@example.com',
-    role: 'editor',
-    status: 'Pending',
-    avatar: 'https://via.placeholder.com/40?text=JS'
+import { useRoute } from 'vue-router'
+const route = useRoute()
+
+
+
+const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
+
+const requests = inject('join_requests', ref([])) // safer fallback
+
+
+const visibleRequests = computed(() =>
+  requests.value.filter(req => req.status === 'pending' || req.status === 'rejected')
+)
+
+
+const pendingRequests = computed(() =>
+  requests.value.filter(req => req.status === 'pending')
+)
+
+
+
+const members = inject('members', null)
+async function acceptRequest(req,role) {
+  try {
+  const response = await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/join-requests/${req.id}`,{
+    method: 'POST',
+    body: JSON.stringify({'role':role}),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include'     
+  }) 
+
+  const data = await response.json()
+
+  if(data.status === 'success' && data.code === '200') {
+    req.status = 'accepted'
+    members.value.push(data.member)
   }
-])
 
-function acceptRequest(req) {
-  // TODO: call API to accept
-  req.status = 'Accepted'
+  //handle 404,400,403,500 errors
+} catch (error) {
+  console.error(error)
+}
 }
 
-function rejectRequest(req) {
-  // TODO: call API to reject
-  req.status = 'Rejected'
+async function rejectRequest(req) {
+  try {
+  const response = await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/join-requests/${req.id}`,{
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include'     
+  }) 
+
+  const data = await response.json()
+
+  if(data.status === 'success' && data.code === '200') {
+    req.status = 'rejected'
+  }
+
+  //handle 404,400,403,500 errors
+} catch (error) {
+  console.error(error)
+}
 }
 </script>
 
 <template>
             <!-- Alert -->
             <div class="mb-4 bg-indigo-600 text-white rounded-lg px-4 py-2">
-               {{ requests.length }} oin Requests below are in the team.
+               {{ pendingRequests.length }} pending join Requests below are in the team.
             </div>
 
         <div class="overflow-x-auto">
@@ -53,7 +88,7 @@ function rejectRequest(req) {
             </thead>
             <tbody>
               <tr
-                v-for="req in requests"
+                v-for="req in visibleRequests"
                 :key="req.id"
                 class="border-b border-gray-700 hover:bg-gray-800"
               >
@@ -64,16 +99,15 @@ function rejectRequest(req) {
                     class="h-10 w-10 rounded-full bg-gray-600"
                   />
                   <div>
-                    <div class="font-medium text-white">{{ req.name }}</div>
-                    <div class="text-sm text-gray-400">{{ req.email }}</div>
+                    <div class="font-medium text-white">{{ req.username }}</div>
                   </div>
                 </td>
                 <td class="py-4">
                   <select
-                    v-model="req.role"
+                    v-model="role"
                     class="bg-gray-800 text-gray-100 rounded-lg px-3 py-2 focus:outline-none"
                   >
-                  <option>co leader</option>
+                  <option>co-leader</option>
                     <option>editor</option>
                     <option>viewer</option>
                   </select>
@@ -82,26 +116,31 @@ function rejectRequest(req) {
                   <span
                     class="inline-block px-3 py-1 text-xs rounded-full font-semibold"
                     :class="{
-                      'bg-yellow-600 text-yellow-100': req.status === 'Pending',
+                      'bg-yellow-600 text-yellow-100': req.status === 'pending',
+                      'bg-red-600 text-red-100': req.status === 'rejected',
+
                     }"
                   >
                     {{ req.status }}
                   </span>
                 </td>
                 <td class="py-4 space-x-2">
-                  <button
-                    @click="acceptRequest(req)"
-                    class="px-3 py-1 text-green-500 hover:text-green-400 font-medium"
-                  >
-                    Accept
-                  </button>
-                  <button
-                    @click="rejectRequest(req)"
-                    class="px-3 py-1 text-red-500 hover:text-red-400 font-medium"
-                  >
-                    Reject
-                  </button>
+                  <template v-if="req.status === 'pending'">
+                    <button
+                      @click="acceptRequest(req,role)"
+                      class="px-3 py-1 text-green-500 hover:text-green-400 font-medium"
+                    >
+                      Accept
+                    </button>
+                    <button
+                      @click="rejectRequest(req)"
+                      class="px-3 py-1 text-red-500 hover:text-red-400 font-medium"
+                    >
+                      Reject
+                    </button>
+                  </template>
                 </td>
+
               </tr>
             </tbody>
           </table>
