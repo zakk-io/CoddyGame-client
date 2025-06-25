@@ -35,6 +35,26 @@ const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
 
 
 
+const memberInfo = inject('memberInfo')
+
+const Isleader = ref(false)
+
+watchEffect(() => {
+  if (memberInfo?.value) {
+    Isleader.value = memberInfo.value.role === 'leader' || memberInfo.value.role === 'co-leader'
+  } else {
+    Isleader.value = false
+  }
+})
+
+
+
+import {useToast} from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-sugar.css';
+const $toast = useToast();
+
+
+
 
 
 //update team api
@@ -61,6 +81,10 @@ const updateTeam = async () => {
     team.value.type = data.team.type
   }
 
+  else if(data.code === 403){
+     $toast.error('only team leader and co-leader can update team settings')
+  }
+
   //handle 404,400,403,500 errors
 }
 
@@ -76,6 +100,11 @@ function leaveTeam() {
 function deleteTeam() {
   console.log('Deleting team')
 }
+
+
+
+
+
 </script>
 
 <template>

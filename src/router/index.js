@@ -2,6 +2,12 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import TeamLayoutView   from '../layout/TeamLayoutView.vue'
 import UsersLayoutView  from '../layout/UsersLayoutView.vue'
+import TeamsListLayout  from '../layout/TeamsListLayout.vue'
+import LoginLayout  from '../layout/LoginLayout.vue'
+import RegisterLayout  from '../layout/RegisterLayout.vue'
+
+
+
 
 import WorkplaceView     from '../views/WorkplaceView.vue'
 import TeamProfileView   from '../views/TeamProfileView.vue'
@@ -49,10 +55,78 @@ const routes = [
       },
     ],
   },
-  // …other top-level routes (login, about, etc)…
+  {
+    path: '/teams/lists',    
+    name: 'teams-lists',
+    component: TeamsListLayout,
+  },
+  {
+    path: '/login',    
+    name: 'login',
+    component: LoginLayout,
+  },
+  {
+    path: '/register',    
+    name: 'register',
+    component: RegisterLayout,
+  },
 ]
 
-export default createRouter({
+const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 })
+
+
+
+
+router.beforeEach(async (to, from, next) => {
+  // Skip check for public routes like login/register if needed
+  const publicPaths = ['/login', '/register'];
+  if (publicPaths.includes(to.path)) return next();
+
+  try {
+    // This endpoint should require auth and respond with 401 if unauthenticated
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URI}/api/auth/me`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: { 'Accept': 'application/json' },
+    });
+
+    if (res.status === 401) {
+      const { useToast } = await import('vue-toast-notification');
+      const toast = useToast();
+      toast.warning('Please log in to continue.');
+      return next('/login');
+    }
+
+    // Optional: check for team membership on team routes
+    if (to.path.startsWith('/teams/')) {
+      const teamId = to.params.team_id || to.path.split('/')[2];
+      const teamRes = await fetch(`${import.meta.env.VITE_API_BASE_URI}/api/teams/${teamId}/members/me`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 'Accept': 'application/json' },
+      });
+
+      const teamResult = await teamRes.json();
+      if (teamResult.code === 403) {
+        const { useToast } = await import('vue-toast-notification');
+        const toast = useToast();
+        toast.error('You are not a member of this team.');
+        return next('/teams/lists');
+      }
+    }
+
+    next(); // Authenticated and allowed
+  } catch (err) {
+    console.error('Auth check failed:', err);
+    return next('/login'); // Fallback: redirect on error
+  }
+});
+
+
+
+
+export default router
+

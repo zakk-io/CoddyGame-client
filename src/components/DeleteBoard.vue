@@ -40,22 +40,44 @@
 
   const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
 
-  //delete board
-  const deleteBoard = async () => {
-    await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/resources/${props.boardId}`,{
+
+import {useToast} from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-sugar.css';
+const $toast = useToast();
+
+
+
+function confirmDelete() {
+  deleteBoard()
+}
+
+const deleteBoard = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/resources/${props.boardId}`, {
       method: 'DELETE',
-      credentials: 'include'     
-    }) 
-  
-    //handle 404,400,403,500 errors
+      credentials: 'include'
+    });
+
+    const result = await response.json();
+
+    if (result.code === 200) {
+      // Only emit once here
+      emit('deleted', { id: props.boardId });
+      emit('close');
+    } else if (result.code === 403) {
+      $toast.error("You are only allowed to delete your own boards");
+    } else if (result.code === 404) {
+      $toast.error("Board not found");
+    } else {
+      $toast.error("Something went wrong");
+    }
+  } catch (error) {
+    $toast.error("Server error. Please try again.");
+    console.error("Delete error:", error);
   }
+}
 
 
-  function confirmDelete() {
-    deleteBoard()
-    emit('deleted', {id: props.boardId})
-    emit('close')
-  }
   </script>
   
   <style scoped>

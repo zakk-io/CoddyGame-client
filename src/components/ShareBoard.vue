@@ -76,9 +76,7 @@ import 'vue-toast-notification/dist/theme-sugar.css';
 const $toast = useToast();
 
   async function sendInvites() {
-    try {
-      console.log(inviteEmail.value);
-      
+    try {      
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URI}/api/teams/${route.params.team_id}/send-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -100,12 +98,13 @@ const $toast = useToast();
         $toast.success("board has been shared with email address");
         emit('shared', { boardName: boardName.value, email: inviteEmail.value })
         emit('close')
-      } else {
-        alert(result.message || 'Failed to send invite')
+      }
+      else if (result.code === 403) {
+        $toast.error("constact with leader or co-leader to share the board");
       }
     } catch (error) {
       console.error('Error sending invite:', error)
-      alert('Something went wrong. Please try again.')
+      $toast.error(error.message || 'Failed to send invite');
     }
   }
 

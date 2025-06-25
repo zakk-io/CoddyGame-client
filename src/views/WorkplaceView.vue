@@ -1,5 +1,5 @@
 <script setup>
-import { ref,onMounted,watchEffect,inject,computed } from 'vue'
+import { ref,inject,computed,watch } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 const route = useRoute()
 import ShareBoard from '../components/ShareBoard.vue'
@@ -147,6 +147,7 @@ const filteredBoards = computed(() => {
 
   return boards.value.filter(board => board.type === selectedFilter.value)
 })
+
 
 
 

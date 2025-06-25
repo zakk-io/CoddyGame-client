@@ -62,9 +62,15 @@
 
   const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
 
+
+import {useToast} from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-sugar.css';
+const $toast = useToast();
+
   //rename board
   const renameBoard = async () => {
-    await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/resources/${boardId.value}`,{
+    try {
+      const response = await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/resources/${boardId.value}`,{
       method: 'PATCH',
       body: JSON.stringify({"name":newName.value}),
       headers: {
@@ -72,17 +78,30 @@
       },
       credentials: 'include'     
     }) 
-  
+
+    const result = await response.json()
+    if (result.code === 200){
+      emit('renamed', { 
+      id:     props.boardId, 
+      name:   newName.value 
+    })
+    emit('close')
+    }
+    else if (result.code === 403) {
+        $toast.error("you are allowed to rename only your own boards");
+    }
+    } catch (error) {
+      $toast.error("Server error. Please try again.");
+      console.error("Rename error:", error);
+      return;
+      
+    }
+
     //handle 404,400,403,500 errors
   }
 
   function confirmRename() {
     renameBoard()
-    emit('renamed', { 
-      id:     props.boardId, 
-      name:   newName.value 
-    })
-    emit('close')
   }
   </script>
   
