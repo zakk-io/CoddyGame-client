@@ -86,19 +86,6 @@ router.beforeEach(async (to, from, next) => {
   if (publicPaths.includes(to.path)) return next();
 
   try {
-    // This endpoint should require auth and respond with 401 if unauthenticated
-    const res = await fetch(`${import.meta.env.VITE_API_BASE_URI}/api/auth/me`, {
-      method: 'GET',
-      credentials: 'include',
-      headers: { 'Accept': 'application/json' },
-    });
-
-    if (res.status === 401) {
-      const { useToast } = await import('vue-toast-notification');
-      const toast = useToast();
-      toast.warning('Please log in to continue.');
-      return next('/login');
-    }
 
     // Optional: check for team membership on team routes
     if (to.path.startsWith('/teams/')) {

@@ -50,6 +50,11 @@ async function handleInvite() {
       $toast.success(data.message);
       invitations.value.push(data.invitation)
     }
+
+    else if(data.code === '400') {
+      $toast.error("invalid email address");
+      invitations.value.push(data.invitation)
+    }
   } catch (error) {
     console.error(error)
   }

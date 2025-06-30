@@ -99,8 +99,13 @@ const $toast = useToast();
         emit('shared', { boardName: boardName.value, email: inviteEmail.value })
         emit('close')
       }
+
       else if (result.code === 403) {
         $toast.error("constact with leader or co-leader to share the board");
+      }
+
+      else if (result.code === "400") {
+        $toast.error(result.message || 'Invalid email address');
       }
     } catch (error) {
       console.error('Error sending invite:', error)
