@@ -5,6 +5,8 @@ import UsersLayoutView  from '../layout/UsersLayoutView.vue'
 import TeamsListLayout  from '../layout/TeamsListLayout.vue'
 import LoginLayout  from '../layout/LoginLayout.vue'
 import RegisterLayout  from '../layout/RegisterLayout.vue'
+import BoardsLayout  from '../layout/BoardsLayout.vue'
+
 
 
 
@@ -14,6 +16,10 @@ import TeamProfileView   from '../views/TeamProfileView.vue'
 import MembersView       from '../views/Users/MembersView.vue'
 import InvitationsView   from '../views/Users/InvitationsView.vue'
 import JoinRequestsView  from '../views/Users/JoinRequestsView.vue'
+
+
+import CodebaseView  from '../views/boards/CodebaseView.vue'
+
 
 const routes = [
   {
@@ -51,6 +57,17 @@ const routes = [
             name: 'join-requests',
             component: JoinRequestsView,
           },
+        ],
+      },
+
+      {
+        path: 'boards',
+        component: BoardsLayout,
+        children: [
+          {
+            path: 'codebase',
+            component: CodebaseView,
+          }
         ],
       },
     ],
