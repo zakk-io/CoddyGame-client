@@ -1,16 +1,23 @@
 <script setup>
 import BoardNavbar from '@/components/BoardNavbar.vue'
 import { RouterView, useRoute } from 'vue-router'
-import { ref,onMounted } from 'vue'
+import { ref,onMounted,computed } from 'vue'
 
 
 const route = useRoute()
+
+const view = ref(null)
 
 
 const boardId = ref('')
 const boardName = ref('')
 const boardIcon = ref('')
 
+
+let language = ref(null)
+const userInput = ref('')
+
+const code = ref('')   
 
 
 
@@ -65,12 +72,12 @@ const Lnaguages = [
 
 const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
 
-let view
 
-function createEditor (language,code) {
+function createEditor (language,initialCode) {
   try {
-    view = new EditorView({
-        doc: code,
+    code.value = initialCode   
+    view.value = new EditorView({
+        doc: initialCode,
         parent: document.getElementById('editor'),
         extensions: [
             basicSetup,
@@ -81,7 +88,7 @@ function createEditor (language,code) {
             }, {dark: true}),
             EditorView.updateListener.of((update) => {
                 if (update.docChanged) {
-                    console.log(update.state.doc.toString());
+                  code.value = update.state.doc.toString()
                 }
             })
         ]
@@ -107,15 +114,16 @@ async function getCodeBase() {
 
     if(data.code === 200){
       const codebase = data.data
-      const language = Lnaguages.find((lang) => lang.name === codebase.language)
-      const code = codebase.content || language.doc;
+
+      language.value = Lnaguages.find((lang) => lang.name === codebase.language)
+      const initialCode = codebase.content || language.value.doc;
       
       boardId.value = codebase.id
       boardName.value = codebase.name || 'Untitled'
-      boardIcon.value = language.icon
+      boardIcon.value = language.value.icon 
 
-      createEditor(language,code)
 
+      createEditor(language.value,initialCode)
     }
 
   } catch (error) {
@@ -125,6 +133,17 @@ async function getCodeBase() {
 
 
 
+const runOutput = ref('')
+
+/* receives the string emitted by <BoardNavbar /> */
+function handleOutput (output) {
+  try {
+    runOutput.value = output          // show stdout / stderr
+  } catch (err) {
+    console.error(err)
+    runOutput.value = String(err)     // still print something
+  }
+}
 
 onMounted(async () => {
   await getCodeBase()
@@ -139,6 +158,10 @@ onMounted(async () => {
       :boardId="boardId"
       :boardName="boardName"
       :boardIcon="boardIcon"
+      :code="code"
+      :language  ="language" 
+      :userInput="userInput"
+      @output="handleOutput"
     />
 
     <!-- Page Content -->
@@ -152,7 +175,7 @@ onMounted(async () => {
         <div class="mb-4">
           <h2 class="text-lg mb-2 text-gray-200">Input</h2>
           <textarea
-            id="user-input"
+            v-model="userInput"
             class="w-full h-24 bg-gray-800 text-gray-100 rounded p-2 resize-none"
             placeholder="5&#10;7&#10;john omer"
           ></textarea>
@@ -163,7 +186,7 @@ onMounted(async () => {
           <pre
             id="output-area"
             class="h-full whitespace-pre-wrap text-sm bg-gray-800 text-gray-100 rounded p-2 overflow-auto"
-          ></pre>
+          >{{ runOutput }}</pre>
         </div>
       </div>
     </div>

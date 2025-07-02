@@ -21,7 +21,7 @@
 
     <!-- Right: Icon Buttons -->
     <div class="flex items-center space-x-4">
-      <button class="p-2 hover:bg-indigo-500 rounded text-sm" title="Run">
+      <button  @click="executeCode" class="p-2 hover:bg-indigo-500 rounded text-sm" title="Run">
         <i class="fa-solid fa-play"></i>
       </button>
       <button class="p-2  hover:bg-gray-600 rounded-full text-sm" title="AI Assistant">
@@ -41,6 +41,11 @@
 </template>
 
 <script setup>
+
+  import { watch,ref } from 'vue'
+
+  const emit = defineEmits(['output']) 
+
   const props = defineProps({
     boardId: {
       type: String,
@@ -55,8 +60,66 @@
     boardIcon: {
       type: String,
       default: 'https://via.placeholder.com/32'
+    },
+
+    code: {
+      type: String,
+      default: ''
+    },
+
+    language: {
+      type: Object,
+    },
+
+    userInput: {
+      type: String,
+      default: ''
     }
+
   })
+
+
+  const version = ref('')  
+
+  watch(
+  () => props.language,         // watch the inner value
+  async (lang) => {
+    if (!lang) return                // ignore null at first render
+    const runtimes = await fetch('https://emkc.org/api/v2/piston/runtimes')
+                         .then(r => r.json())
+    version.value = runtimes.find(r => r.language === lang.name)?.version
+  },
+  { immediate: true }
+)
+
+
+  async function executeCode() {
+  try {
+
+  const payload = {
+    language: props.language.name,
+    version: version.value,
+    stdin: props.userInput || '',
+    files: [{ name: `${props.boardName}`, content: props.code }],
+  };
+
+  const res = await fetch(`https://emkc.org/api/v2/piston/execute`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await res.json();
+  console.log(data.run.output);
+  emit('output', data.run.output) 
+  } catch (error) {
+    console.error("Error executing code:", error);
+    emit('output', String(err)) 
+  }
+  }
+
+
+
 </script>
 
 <style scoped>
