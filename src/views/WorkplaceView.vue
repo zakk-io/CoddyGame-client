@@ -122,7 +122,7 @@ function handleRenamed({id,name}) {
 
 
 
-
+const teamId = computed(() => route.params.team_id)
 
 const BoardsIcon = {
   python:    { icon: 'fa-brands fa-python mr-2 text-[#FFD43B]'},
@@ -242,7 +242,22 @@ function timeAgo(isoString) {
                 <td class="px-6 py-4 flex items-center space-x-3">
                   <i :class="['fa-solid',BoardsIcon[board.language || board.type]?.icon || 'fa-file-lines']"></i>
                   <div>
-                    <p class="font-medium text-gray-100">{{ board.name }}</p>
+                    <RouterLink
+                      :to="
+                        board.type === 'codebase'
+                          ? `/teams/${teamId}/boards/codebase/${board.id}`
+                        : board.type === 'document'
+                          ? `/teams/${teamId}/boards/document/${board.id}`
+                        : board.type === 'whiteboard'
+                          ? `/teams/${teamId}/boards/whiteboard/${board.id}`
+                        : `/boards/${board.id}`
+                      "
+                      class="font-medium text-gray-100 hover:underline"
+                    >
+                      {{ board.name }}
+                    </RouterLink>
+
+
                     <p class="text-gray-400 text-sm">{{ board.description }}</p>
                   </div>
                 </td>

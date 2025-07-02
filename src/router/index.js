@@ -65,7 +65,7 @@ const routes = [
         component: BoardsLayout,
         children: [
           {
-            path: 'codebase',
+            path: 'codebase/:codebase_id',
             component: CodebaseView,
           }
         ],

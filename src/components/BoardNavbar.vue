@@ -1,15 +1,17 @@
 <template>
-  <nav class="bg-gray-900 text-gray-100 px-6 py-3 flex items-center">
+  <nav class="bg-gray-900 text-gray-100 px-6 py-3 flex items-center border-b border-t border-gray-700">
     <!-- Left: Board Avatar + Name + Info -->
     <div class="flex items-center space-x-3">
-      <img
-        src="https://via.placeholder.com/32"
-        alt="Board Avatar"
-        class="h-8 w-8 bg-gray-700"
-      />
+      <i
+        :class="[
+          'h-10 w-10  flex items-center justify-center text-xl',
+          boardIcon
+        ]"
+      ></i>
+
       <input
         type="text"
-        value="untitled"
+        :value="boardName"
         class="bg-gray-900 border-blue-600  px-3 py-1 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
     </div>
@@ -19,7 +21,7 @@
 
     <!-- Right: Icon Buttons -->
     <div class="flex items-center space-x-4">
-      <button class="p-2 bg-indigo-600 hover:bg-indigo-500 rounded text-sm" title="Run">
+      <button class="p-2 hover:bg-indigo-500 rounded text-sm" title="Run">
         <i class="fa-solid fa-play"></i>
       </button>
       <button class="p-2  hover:bg-gray-600 rounded-full text-sm" title="AI Assistant">
@@ -39,7 +41,22 @@
 </template>
 
 <script setup>
-// No reactive behavior needed yet
+  const props = defineProps({
+    boardId: {
+      type: String,
+      required: true
+    },
+
+    boardName: {
+      type: String,
+      default: 'Untitled'
+    },
+
+    boardIcon: {
+      type: String,
+      default: 'https://via.placeholder.com/32'
+    }
+  })
 </script>
 
 <style scoped>
