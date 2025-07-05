@@ -24,9 +24,10 @@
       <button  @click="executeCode" class="p-2 hover:bg-indigo-500 rounded text-sm" title="Run">
         <i class="fa-solid fa-play"></i>
       </button>
-      <button class="p-2  hover:bg-gray-600 rounded-full text-sm" title="AI Assistant">
-        <i class="fa-solid fa-robot"></i>
-      </button>
+      <CoddyAi @AiResponse="handleAi"
+               :codebaseCode="codebaseCode"
+      />
+
       <button class="p-2 hover:bg-gray-600 rounded text-sm" title="Share">
         <i class="fa-solid fa-share-alt"></i>
       </button>
@@ -43,8 +44,11 @@
 <script setup>
 
   import { watch,ref } from 'vue'
+  import CoddyAi from '@/components/CoddyAi.vue'
 
-  const emit = defineEmits(['output']) 
+  
+
+  const emit = defineEmits(['output','CoddyAiresponse'])
 
   const props = defineProps({
     boardId: {
@@ -80,6 +84,7 @@
 
 
   const version = ref('')  
+  const codebaseCode = ref('') // This will hold the code for AI assistant
 
   watch(
   () => props.language,         // watch the inner value
@@ -88,6 +93,15 @@
     const runtimes = await fetch('https://emkc.org/api/v2/piston/runtimes')
                          .then(r => r.json())
     version.value = runtimes.find(r => r.language === lang.name)?.version
+  },
+  { immediate: true }
+)
+
+watch(
+  () => props.code,               // watch the inner value
+  (code) => {
+    if (!code) return                // ignore null at first render
+    codebaseCode.value = code        // update the codebaseCode ref
   },
   { immediate: true }
 )
@@ -119,6 +133,13 @@
   }
 
 
+
+  // Handle AI Assistant apply event
+function handleAi(text) {
+  console.log("AI Response - BoardNavbar:", text);
+
+  emit('CoddyAiresponse',text)
+}
 
 </script>
 

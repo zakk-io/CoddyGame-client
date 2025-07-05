@@ -81,6 +81,7 @@ function createEditor (language,initialCode) {
         parent: document.getElementById('editor'),
         extensions: [
             basicSetup,
+            EditorView.lineWrapping,
             language.lang,
             EditorView.theme({
                 '&': { fontSize: '16px', height: '100%' },
@@ -145,6 +146,22 @@ function handleOutput (output) {
   }
 }
 
+
+function handleAi(text) {
+  console.log("AI Response - CodebasesView:", text);
+
+  try {
+    view.value.dispatch({
+      changes: { from: 0, to: view.value.state.doc.length, insert: text }
+    });
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+
+
+
 onMounted(async () => {
   await getCodeBase()
 })
@@ -162,6 +179,7 @@ onMounted(async () => {
       :language  ="language" 
       :userInput="userInput"
       @output="handleOutput"
+      @CoddyAiresponse="handleAi"
     />
 
     <!-- Page Content -->
