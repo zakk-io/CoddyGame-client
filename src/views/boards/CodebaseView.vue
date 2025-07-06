@@ -92,6 +92,7 @@ function createEditor (language,initialCode) {
             EditorView.updateListener.of((update) => {
                 if (update.docChanged) {
                   code.value = update.state.doc.toString()
+                  saveCodeBase(code.value)
                 }
             })
         ]
@@ -159,6 +160,23 @@ function handleAi(text) {
     });
   } catch (err) {
     console.error(err)
+  }
+}
+
+
+
+async function saveCodeBase(code){
+  try {
+    await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/resources/${route.params.codebase_id}` , {
+      method: 'PATCH',
+      body: JSON.stringify({ content : code }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include'     
+    }) 
+  } catch (error) {
+    console.error("Error saving codebase:", error);
   }
 }
 
