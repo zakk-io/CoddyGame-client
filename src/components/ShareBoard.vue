@@ -57,12 +57,12 @@
   import { useRoute } from 'vue-router'
   const route = useRoute()
   
-  const props = defineProps({ boardTitle: String , boardId:String })
+  const props = defineProps({ boardTitle: String , boardId:String, boardType:String })
   const emit = defineEmits(['close', 'shared'])
   
   const boardName = ref(props.boardTitle || '')
   const inviteEmail = ref('')
-  const inviteLink = ref(`${import.meta.env.VITE_BASE_URI}/teams/${route.params.team_id}/board/${props.boardId}`) // Replace with dynamic link if needed
+  const inviteLink = ref(`${import.meta.env.VITE_BASE_URI}/teams/${route.params.team_id}/boards/${props.boardType}/${props.boardId}`) // Replace with dynamic link if needed
   
   function copyLink() {
     navigator.clipboard.writeText(inviteLink.value)

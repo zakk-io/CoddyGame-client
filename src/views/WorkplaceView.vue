@@ -60,6 +60,7 @@ function toggleRowMenu(idx) {
 // Modals state
 const showSharePanel = ref(false)
 const editingBoardTitle = ref('')
+const boardType= ref('')
 const showDeletePanel = ref(false)
 const editingBoardToDelete = ref('')
 const showDetailsPanel = ref(false)
@@ -72,6 +73,7 @@ function onRowAction(action, board) {
   activeRowMenu.value = null
   if (action === 'share') {
     editingBoardTitle.value = board.name
+    boardType.value = board.type
     boardId.value = board.id
     showSharePanel.value = true
     return
@@ -301,6 +303,7 @@ function timeAgo(isoString) {
       v-if="showSharePanel"
       :boardTitle="editingBoardTitle"
       :boardId="boardId"
+      :boardType="boardType"
       @close="closeSharePanel"
       @shared="handleShared"
     />

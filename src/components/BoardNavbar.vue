@@ -28,7 +28,7 @@
                :codebaseCode="codebaseCode"
       />
 
-      <button class="p-2 hover:bg-gray-600 rounded text-sm" title="Share">
+      <button @click="openShare" class="p-2 hover:bg-gray-600 rounded" title="Share">
         <i class="fa-solid fa-share-alt"></i>
       </button>
       <button class="p-2 hover:bg-gray-600 rounded text-sm" title="Export">
@@ -39,12 +39,26 @@
       </button>
     </div>
   </nav>
+
+  <!-- Share Modal -->
+  <ShareBoard
+    v-if="showShare"
+    :boardTitle="localBoardName"
+    :boardId="boardId"
+    :boardType="boardType"
+    @close="closeShare"
+    @shared="onShared"
+  />
 </template>
 
 <script setup>
 
-  import { watch,ref } from 'vue'
+  import { watch,ref,computed } from 'vue'
+  import { useRoute } from 'vue-router'
   import CoddyAi from '@/components/CoddyAi.vue'
+  import ShareBoard from '@/components/ShareBoard.vue'
+
+
 
   
 
@@ -81,6 +95,33 @@
     }
 
   })
+
+  const route       = useRoute()
+  
+  const boardType = computed(() => {
+  const parts = route.path.split('/')
+  const idx    = parts.indexOf('boards')
+  return idx >= 0 && parts.length > idx+1
+    ? parts[idx+1]
+    : 'unknown'
+})
+
+
+/** Local copy of boardName so the input is editable **/
+const localBoardName = ref(props.boardName)
+watch(() => props.boardName, v => localBoardName.value = v)
+
+// share modal state
+const showShare = ref(false)
+function openShare() { showShare.value = true }
+function closeShare(){ showShare.value = false }
+
+/** re-emit from ShareBoard up to parent */
+function onShared(payload) {
+  emit('shared', payload)
+  closeShare()
+}
+
 
 
   const version = ref('')  
