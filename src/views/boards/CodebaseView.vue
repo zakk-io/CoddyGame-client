@@ -12,6 +12,8 @@ const view = ref(null)
 const boardId = ref('')
 const boardName = ref('')
 const boardIcon = ref('')
+const languageExt = ref('')
+
 
 
 let language = ref(null)
@@ -122,6 +124,7 @@ async function getCodeBase() {
       boardId.value = codebase.id
       boardName.value = codebase.name || 'Untitled'
       boardIcon.value = language.value.icon 
+      languageExt.value = language.value.extension
 
 
       createEditor(language.value,initialCode)
@@ -176,7 +179,8 @@ onMounted(async () => {
       :boardName="boardName"
       :boardIcon="boardIcon"
       :code="code"
-      :language  ="language" 
+      :language  ="language"
+      :languageExt="languageExt" 
       :userInput="userInput"
       @output="handleOutput"
       @CoddyAiresponse="handleAi"

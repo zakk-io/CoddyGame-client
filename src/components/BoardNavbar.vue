@@ -21,7 +21,7 @@
 
     <!-- Right: Icon Buttons -->
     <div class="flex items-center space-x-4">
-      <button  @click="executeCode" class="p-2 hover:bg-indigo-500 rounded text-sm" title="Run">
+      <button v-if="boardType === 'codebase'"  @click="executeCode" class="p-2 hover:bg-indigo-500 rounded text-sm" title="Run">
         <i class="fa-solid fa-play"></i>
       </button>
       <CoddyAi @AiResponse="handleAi"
@@ -31,7 +31,7 @@
       <button @click="openShare" class="p-2 hover:bg-gray-600 rounded" title="Share">
         <i class="fa-solid fa-share-alt"></i>
       </button>
-      <button class="p-2 hover:bg-gray-600 rounded text-sm" title="Export">
+      <button @click="handelExport" class="p-2 hover:bg-gray-600 rounded text-sm" title="Export">
         <i class="fa-solid fa-download"></i>
       </button>
       <button class="p-2 hover:bg-gray-600 rounded text-sm" title="chatting">
@@ -75,6 +75,8 @@
       default: 'Untitled'
     },
 
+    
+
     boardIcon: {
       type: String,
       default: 'https://via.placeholder.com/32'
@@ -89,6 +91,11 @@
       type: Object,
     },
 
+    languageExt: {
+      type: String,
+      default: ''
+    },
+
     userInput: {
       type: String,
       default: ''
@@ -97,7 +104,7 @@
   })
 
   const route       = useRoute()
-  
+
   const boardType = computed(() => {
   const parts = route.path.split('/')
   const idx    = parts.indexOf('boards')
@@ -180,6 +187,17 @@ function handleAi(text) {
   console.log("AI Response - BoardNavbar:", text);
 
   emit('CoddyAiresponse',text)
+}
+
+
+import {saveAs} from "file-saver"
+function handelExport() {
+  try {
+    const blob = new Blob([props.code], { type: 'text/plain;charset=utf-8' });
+    saveAs(blob, `${props.boardName}.${props.languageExt}`);
+  } catch (error) {
+    console.error("Error exporting code:", error);
+  }
 }
 
 </script>
