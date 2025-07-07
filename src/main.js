@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import ToastPlugin from 'vue-toast-notification';
 import 'vue-toast-notification/dist/theme-bootstrap.css';
+import 'quill/dist/quill.snow.css'  
 const app = createApp(App)
 
 app.use(router)

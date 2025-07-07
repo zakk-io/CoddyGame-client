@@ -19,6 +19,8 @@ import JoinRequestsView  from '../views/Users/JoinRequestsView.vue'
 
 
 import CodebaseView  from '../views/boards/CodebaseView.vue'
+import DocumentView  from '../views/boards/DocumentView.vue'
+
 
 
 const routes = [
@@ -67,7 +69,11 @@ const routes = [
           {
             path: 'codebase/:codebase_id',
             component: CodebaseView,
-          }
+          },
+          {
+            path: 'document/:document_id',
+            component: DocumentView,
+          },
         ],
       },
     ],

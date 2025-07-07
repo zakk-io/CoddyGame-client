@@ -152,7 +152,6 @@ function handleOutput (output) {
 
 
 function handleAi(text) {
-  console.log("AI Response - CodebasesView:", text);
 
   try {
     view.value.dispatch({
