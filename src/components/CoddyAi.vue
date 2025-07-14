@@ -56,7 +56,7 @@
 
 
   const props = defineProps({
-    codebaseCode: {
+    content: {
       type: String,
       default: ''
     }
@@ -103,7 +103,7 @@
     contents.push({
       role: 'user',
       parts: [{
-        text: props.codebaseCode.trim(),
+        text: props.content.trim(),
       }]
     });
 

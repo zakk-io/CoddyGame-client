@@ -12,6 +12,7 @@
       <input
         type="text"
         :value="boardName"
+        :v-model="boardInputName"
         class="bg-gray-900 border-blue-600  px-3 py-1 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
     </div>
@@ -25,7 +26,7 @@
         <i class="fa-solid fa-play"></i>
       </button>
       <CoddyAi @AiResponse="handleAi"
-               :codebaseCode="codebaseCode"
+               :content="content"
       />
 
       <button @click="openShare" class="p-2 hover:bg-gray-600 rounded" title="Share">
@@ -75,8 +76,6 @@
       default: 'Untitled'
     },
 
-    
-
     boardIcon: {
       type: String,
       default: 'https://via.placeholder.com/32'
@@ -87,13 +86,18 @@
       default: ''
     },
 
+    docContent: {
+      type: String,
+      default: ''
+    },
+
     language: {
       type: Object,
     },
 
     languageExt: {
       type: String,
-      default: ''
+      default: 'doc'
     },
 
     userInput: {
@@ -132,7 +136,7 @@ function onShared(payload) {
 
 
   const version = ref('')  
-  const codebaseCode = ref('') // This will hold the code for AI assistant
+  const content = ref('') // This will hold the code for AI assistant
 
   watch(
   () => props.language,         // watch the inner value
@@ -149,7 +153,7 @@ watch(
   () => props.code,               // watch the inner value
   (code) => {
     if (!code) return                // ignore null at first render
-    codebaseCode.value = code        // update the codebaseCode ref
+    content.value = code || props.docContent       // update the content ref
   },
   { immediate: true }
 )
@@ -184,8 +188,6 @@ watch(
 
   // Handle AI Assistant apply event
 function handleAi(text) {
-  console.log("AI Response - BoardNavbar:", text);
-
   emit('CoddyAiresponse',text)
 }
 
@@ -193,7 +195,7 @@ function handleAi(text) {
 import {saveAs} from "file-saver"
 function handelExport() {
   try {
-    const blob = new Blob([props.code], { type: 'text/plain;charset=utf-8' });
+    const blob = new Blob([props.code || props.docContent], { type: 'text/plain;charset=utf-8' });
     saveAs(blob, `${props.boardName}.${props.languageExt}`);
   } catch (error) {
     console.error("Error exporting code:", error);

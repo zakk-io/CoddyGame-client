@@ -20,6 +20,8 @@ import JoinRequestsView  from '../views/Users/JoinRequestsView.vue'
 
 import CodebaseView  from '../views/boards/CodebaseView.vue'
 import DocumentView  from '../views/boards/DocumentView.vue'
+import WhitboardView  from '../views/boards/WhitboardView.vue'
+
 
 
 
@@ -73,6 +75,10 @@ const routes = [
           {
             path: 'document/:document_id',
             component: DocumentView,
+          },
+          {
+            path: 'whiteboard/:whiteboard_id',
+            component: WhitboardView,
           },
         ],
       },
