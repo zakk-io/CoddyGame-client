@@ -35,7 +35,7 @@
       <button @click="handelExport" class="p-2 hover:bg-gray-600 rounded text-sm" title="Export">
         <i class="fa-solid fa-download"></i>
       </button>
-      <button class="p-2 hover:bg-gray-600 rounded text-sm" title="chatting">
+      <button v-if="boardType === 'codebase'" class="p-2 hover:bg-gray-600 rounded text-sm" title="chatting">
         <i class="fa-solid fa-message"></i>
       </button>
     </div>

@@ -9,6 +9,16 @@ import BoardNavbar from '@/components/BoardNavbar.vue'
 const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
 const route = useRoute()
 
+
+import { io } from 'socket.io-client' 
+const socket = io(API_BASE_URI)
+socket.on('connect', () => {
+  socket.emit('join_document', route.params.document_id)
+})
+
+
+
+
 // ─── STATE ─────────────────────────────────────────────────────────────────────
 const quill     = ref(null)
 const boardId   = ref('')
@@ -44,13 +54,21 @@ function createQuill() {
     }
   })
 
-  quill.value.on(
-    'text-change',
-    debounce(() => {
-      content.value = JSON.stringify(quill.value.getContents())
-      saveDocument()
-    }, 500)
-  )
+  const debouncedSave = debounce(() => {
+    content.value = JSON.stringify(quill.value.getContents())
+    saveDocument()
+    socket.emit('emit_document_data', quill.value.getContents(), route.params.document_id)
+  })
+  
+  quill.value.on('text-change', (delta, oldDelta, source) => {
+    if (source === 'user') debouncedSave()
+  })
+
+  socket.on("brodcast_document_data",data => {
+    quill.value.updateContents(data)
+    console.log("Received data from server:", data)
+  })
+
 }
 
 // ─── DATA FETCH & SAVE ─────────────────────────────────────────────────────────
@@ -130,7 +148,7 @@ onBeforeUnmount(() => {
         <div id="editor"></div>
     </div>
         
-</div>
+</div
 
 </template>
 
