@@ -1,117 +1,155 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount, defineExpose, markRaw } from 'vue'
+import { ref, onMounted, onBeforeUnmount, markRaw,watchEffect,inject } from 'vue'
 import { useRoute } from 'vue-router'
 import Quill from 'quill'
+import QuillCursors from 'quill-cursors'
+import { io } from 'socket.io-client'
 import 'quill/dist/quill.snow.css'
 import BoardNavbar from '@/components/BoardNavbar.vue'
-import { io } from 'socket.io-client'
+const memberInfo = inject('memberInfo')
 
-/* ─── ENV & ROUTER ─────────────────────────────────────────────────────────── */
+Quill.register('modules/cursors', QuillCursors)      // ✔ register once
+
+/* ── constants ───────────────────────────────────── */
 const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
 const route        = useRoute()
+const docId        = route.params.document_id
 
-/* ─── SOCKET ───────────────────────────────────────────────────────────────── */
-const socket = io(API_BASE_URI)
-socket.on('connect', () => socket.emit('join_document', route.params.document_id))
 
-/* ─── STATE ────────────────────────────────────────────────────────────────── */
+/* ── state ───────────────────────────────────────── */
 const quill      = ref(null)
+const contentStr = ref('')
 const boardId    = ref('')
 const boardName  = ref('')
 const boardIcon  = ref('fa-solid fa-file-lines text-blue-500')
-const contentStr = ref('')                     // server-friendly JSON string
 
-/* ─── HELPERS ──────────────────────────────────────────────────────────────── */
-function debounce(fn, wait = 300) {
-  let t; return () => { clearTimeout(t); t = setTimeout(fn, wait) }
-}
+const memberName = ref('')
+const memberAvatar = ref('')
 
-/* Newline guard (works after setContents or remote update) */
-function ensureTrailingNewline () {
+/* ── socket ──────────────────────────────────────── */
+const socket = io(API_BASE_URI)
+socket.on('connect', () => socket.emit('join_document', docId))
+
+/* helper: debounce */
+const debounce = (fn, w = 300) => { let t; return () => { clearTimeout(t); t = setTimeout(fn, w) } }
+
+/* ensure final newline so Quill always has a leaf node */
+const ensureTrailingNewline = () => {
   const len = quill.value.getLength()
-  if (quill.value.getText(len - 2, 1) !== '\n') {
+  if (quill.value.getText(len - 2, 1) !== '\n')
     quill.value.insertText(len - 1, '\n', 'silent')
-  }
 }
 
-/* ─── QUILL INIT ───────────────────────────────────────────────────────────── */
-function createQuill () {
+/* ── init ────────────────────────────────────────── */
+function createEditor () {
   quill.value = markRaw(new Quill('#editor', {
     theme: 'snow',
-    modules: { toolbar: [
-      [{ font: [] }], [{ size: ['small', false, 'large', 'huge'] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ align: [] }], [{ color: [] }, { background: [] }],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-      [{ header: [1, 2, 3] }], ['link', 'image'], ['blockquote', 'code-block']
-    ]}
+    modules: {
+      toolbar: [
+        [{ font: [] }], [{ size: ['small', false, 'large', 'huge'] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ align: [] }], [{ color: [] }, { background: [] }],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        [{ header: [1, 2, 3] }], ['link', 'image'], ['blockquote', 'code-block']
+      ],
+      cursors: true
+    }
   }))
 
-  /* LOCAL CHANGES → SERVER */
+  /* cursor module (must be AFTER init) */
+  const cursors = quill.value.getModule('cursors')
+
+  /* broadcast local delta */
   const debouncedSave = debounce(() => {
     contentStr.value = JSON.stringify(quill.value.getContents())
     saveDocument()
-  }, 300)
+  })
 
-  quill.value.on('text-change', (delta, _old, source) => {
-    if (source === 'user') {
+  quill.value.on('text-change', (delta, _old, src) => {
+    if (src === 'user') {
       debouncedSave()
-      socket.emit('emit_document_data', delta, route.params.document_id)
+      socket.emit('emit_document_data', delta, docId)
     }
   })
 
-  /* REMOTE CHANGES → EDITOR (skip sender) */
-  socket.on('brodcast_document_data', delta => {
-    quill.value.updateContents(delta, 'silent')
+  /* broadcast caret position */
+  watchEffect(() => {
+  if (memberInfo?.value) {
+    memberName.value = memberInfo.value.username 
+    memberAvatar.value = memberInfo.value.avatar 
+  } else {
+    memberName.value = 'Anonymous'
+    memberAvatar.value = null
+  }
+  })
+
+  quill.value.on('selection-change', (range, _o, src) => {
+    if (src === 'user' && range)
+      socket.emit('emit_user_cursor_document', { id: socket.id,name: memberName.value, avatar: memberAvatar.value, range }, docId)
+  })
+
+  /* remote delta */
+  socket.on('brodcast_document_data', d => {
+    quill.value.updateContents(d, 'silent')
     ensureTrailingNewline()
   })
+
+  /* remote cursor */
+  function colorFromId(id) {
+    const hash = [...id].reduce((acc, ch) => acc + ch.charCodeAt(0), 0); // simple additive hash
+    return `hsl(${hash % 360}, 70%, 55%)`;                                // pastel palette
+  }
+
+  socket.on('brodcast_user_cursor_document', info => {
+    if (info.id === socket.id) return
+    const label = (info.name ?? 'Anon').slice(0, 12);
+     if (!cursors.cursors().some(c => c.id === info.id)) {   // ① make sure we create only once
+        cursors.createCursor(info.id, label, colorFromId(info.id));
+        cursors.toggleFlag(info.id, true); 
+     }
+
+    cursors.moveCursor(info.id, info.range)
+  })
+
+  /* clean cursor on leave */
+  socket.on('user_left', id => cursors.removeCursor(id))
 }
 
-/* ─── SERVER I/O ───────────────────────────────────────────────────────────── */
-async function fetchDocument () {
-  const url  = `${API_BASE_URI}/api/teams/${route.params.team_id}/resources/${route.params.document_id}`
-  const res  = await fetch(url, { credentials: 'include' })
-  const json = await res.json()
 
+
+
+/* ── fetch / save ────────────────────────────────── */
+async function fetchDocument () {
+  const res  = await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/resources/${docId}`, { credentials: 'include' })
+  const json = await res.json()
   if (json.code === 200) {
-    const doc = json.data
-    boardId.value   = doc.id
-    boardName.value = doc.name || 'Untitled'
-    const raw = doc.content ?? { ops:[{ insert:'\\n' }] }
+    boardId.value   = json.data.id
+    boardName.value = json.data.name || 'Untitled'
+    const raw   = json.data.content ?? { ops: [{ insert: '\\n' }] }
     const delta = typeof raw === 'string' ? JSON.parse(raw) : raw
     quill.value.setContents(delta, 'silent')
     ensureTrailingNewline()
     contentStr.value = JSON.stringify(quill.value.getContents())
-  } else {
-    console.error('Fetch error:', json.message)
   }
 }
 
 async function saveDocument () {
-  const url  = `${API_BASE_URI}/api/teams/${route.params.team_id}/resources/${route.params.document_id}`
-  const res  = await fetch(url, {
+  await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/resources/${docId}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ content: contentStr.value })
   })
-  const json = await res.json()
-  if (json.code !== 200) console.error('Save error:', json.message)
 }
 
-/* ─── AI HOOKS ─────────────────────────────────────────────────────────────── */
-function handleAi (text) { quill.value?.setText(text, 'user') }
-function setAiContent (t) { quill.value?.setText(t,   'user') }
-defineExpose({ setAiContent })
-
-/* ─── LIFECYCLE ────────────────────────────────────────────────────────────── */
+/* ── lifecycle ───────────────────────────────────── */
 onMounted(async () => {
-  createQuill()
+  createEditor()
   await fetchDocument()
 })
 
 onBeforeUnmount(() => {
-  //socket.emit('leave_document', route.params.document_id)
+  //socket.emit('leave_document', docId)
   socket.off(); socket.disconnect()
   quill.value?.off('text-change'); quill.value = null
 })
@@ -137,10 +175,14 @@ onBeforeUnmount(() => {
 </template>
 
 
-<style scoped>
-#editor{
+<style>
+#editor {
   border: none;
 }
-/* make sure the inner editing canvas is white */
-
+/* --- cursor avatar bubble ---------------------------------- */
+.ql-cursor-flag{
+  opacity: 1   !important;   /* always show */
+  transition: none !important;
+}
 </style>
+
