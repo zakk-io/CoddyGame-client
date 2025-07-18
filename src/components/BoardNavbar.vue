@@ -12,7 +12,6 @@
       <input
         type="text"
         :value="boardName"
-        :v-model="boardInputName"
         class="bg-gray-900 border-blue-600  px-3 py-1 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
     </div>

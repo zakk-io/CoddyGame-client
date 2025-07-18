@@ -2,6 +2,7 @@
 import BoardNavbar from '@/components/BoardNavbar.vue'
 import { RouterView, useRoute } from 'vue-router'
 import { ref,onMounted,computed } from 'vue'
+import { io } from 'socket.io-client'
 
 
 const route = useRoute()
@@ -73,7 +74,13 @@ const Lnaguages = [
 
 
 const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
+const codebaseId        = route.params.codebase_id
+const socket = io(API_BASE_URI)
 
+socket.on('connect', () => socket.emit('join_codebase', codebaseId))
+
+
+let remoteEdit = false  
 
 function createEditor (language,initialCode) {
   try {
@@ -90,8 +97,15 @@ function createEditor (language,initialCode) {
                 '.cm-content': { padding: '12px' }
             }, {dark: true}),
             EditorView.updateListener.of((update) => {
-                if (update.docChanged) {
-                  code.value = update.state.doc.toString()
+                if (update.docChanged  && !remoteEdit) {
+                    code.value = update.state.doc.toString()
+                    /* ① broadcast live text */
+                    const data = code.value
+                    socket.emit('emit_codebase_data',
+                      data,
+                      codebaseId
+                    )
+
                   saveCodeBase(code.value)
                 }
             })
@@ -101,6 +115,27 @@ function createEditor (language,initialCode) {
     console.log(error)
   }
 }
+
+
+
+socket.on('brodcast_codebase_data', (data) => {
+  if (!view.value) return
+  
+  if (data !== view.value.state.doc.toString()) {
+    remoteEdit = true         // suppress echo
+    view.value.dispatch({
+      changes: {
+        from: 0,
+        to: view.value.state.doc.length,
+        insert: data
+      }
+    })
+    remoteEdit = false
+  }
+})
+
+
+
 
 
 async function getCodeBase() {
