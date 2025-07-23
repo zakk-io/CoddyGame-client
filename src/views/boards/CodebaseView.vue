@@ -1,8 +1,10 @@
 <script setup>
 import BoardNavbar from '@/components/BoardNavbar.vue'
+import ChatPanel from '@/components/ChatPanel.vue'
 import { RouterView, useRoute } from 'vue-router'
 import { ref,onMounted,computed } from 'vue'
 import { io } from 'socket.io-client'
+
 
 
 const route = useRoute()
@@ -216,6 +218,19 @@ async function saveCodeBase(code){
 
 
 
+const showChat = ref(false)
+
+const currentUser = {
+  id: '28372987498274-87897897wer',
+  name: "mohamed zakaria",
+  avatarUrl: 'https://ui-avatars.com/api/?name=zakaria'
+}
+
+function toggleChat() {
+  showChat.value = !showChat.value
+}
+
+
 
 onMounted(async () => {
   await getCodeBase()
@@ -236,7 +251,16 @@ onMounted(async () => {
       :userInput="userInput"
       @output="handleOutput"
       @CoddyAiresponse="handleAi"
+      @toggleChat="toggleChat"
     />
+
+
+  <ChatPanel
+    v-if="showChat"
+    :boardId="route.params.codebase_id"
+    :currentUser="currentUser"
+    @close="toggleChat"
+   />
 
     <!-- Page Content -->
     <div class="flex flex-1 bg-gray-900">

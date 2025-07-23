@@ -34,8 +34,13 @@
       <button @click="handelExport" class="p-2 hover:bg-gray-600 rounded text-sm" title="Export">
         <i class="fa-solid fa-download"></i>
       </button>
-      <button v-if="boardType === 'codebase'" class="p-2 hover:bg-gray-600 rounded text-sm" title="chatting">
-        <i class="fa-solid fa-message"></i>
+      <button
+           v-if="boardType === 'codebase'"
+           class="p-2 hover:bg-gray-600 rounded text-sm"
+           title="Chat"
+           @click="$emit('toggleChat')"
+         >
+           <i class="fa-solid fa-message"></i>
       </button>
     </div>
   </nav>
@@ -62,7 +67,7 @@
 
   
 
-  const emit = defineEmits(['output','CoddyAiresponse'])
+  const emit = defineEmits(['output','CoddyAiresponse','toggleChat'])
 
   const props = defineProps({
     boardId: {

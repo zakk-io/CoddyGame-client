@@ -2,10 +2,23 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 const route = useRoute()
+import { io } from 'socket.io-client'
+
+const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
+const socket      = io(API_BASE_URI)
+const whiteboard_id = route.params.whiteboard_id
+
+socket.on('connect', () => {               // ✓ fired once handshake is done
+  socket.emit('join_whiteboard', whiteboard_id)
+})
+
 
 const frameRef = ref(null)
 const frame = ref(null)
 let editorReady = false
+let remotePatch  = false 
+
+
 
 async function handleMessage(e) {
   frame.value = frameRef.value
@@ -22,12 +35,32 @@ async function handleMessage(e) {
       break
     case 'autosave':
       saveInstance(msg.xml)
+      socket.emit('emit_whiteboard_data', msg.xml, whiteboard_id)
       break
   }
 }
 
 
-const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
+
+
+
+socket.on('brodcast_whiteboard_data', xml => {
+    if (!frame.value) return
+  // avoid echo if we’re the origin
+  if (remotePatch || !xml) return
+
+  remotePatch = true
+  frame.value.contentWindow.postMessage(
+    JSON.stringify({ action: 'merge', xml }),  // less jarring than load()
+    '*'
+  )
+  remotePatch = false
+})
+
+
+
+
+
 
 async function geInstance(){
     try {
@@ -37,7 +70,6 @@ async function geInstance(){
         const data = await response.json();
         if (data.status === "success") {
             const instance = data.data;
-            //document.title = instance.name || 'Untitled';  
 
             const xmlContent = instance.content ||  `<mxfile host="app.diagrams.net"><diagram name="Page-1"></diagram></mxfile>`;
             frame.value.contentWindow.postMessage(JSON.stringify({
