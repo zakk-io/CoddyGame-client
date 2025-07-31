@@ -4,6 +4,8 @@ import ChatPanel from '@/components/ChatPanel.vue'
 import { RouterView, useRoute } from 'vue-router'
 import { ref,onMounted,computed } from 'vue'
 import { io } from 'socket.io-client'
+import { useAudioCall } from '@/composables/useAudioCall';
+import RemoteAudio from '@/components/RemoteAudio.vue';
 
 
 
@@ -78,6 +80,8 @@ const Lnaguages = [
 const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
 const codebaseId        = route.params.codebase_id
 const socket = io(API_BASE_URI)
+
+const { remoteTracks } = useAudioCall(codebaseId);
 
 socket.on('connect', () => socket.emit('join_codebase', codebaseId))
 
@@ -261,6 +265,15 @@ onMounted(async () => {
     :currentUser="currentUser"
     @close="toggleChat"
    />
+
+
+  <RemoteAudio
+    v-for="t in remoteTracks"
+    :key="t.id"
+    :id="t.id"
+    :stream="t.stream"
+  />
+
 
     <!-- Page Content -->
     <div class="flex flex-1 bg-gray-900">
