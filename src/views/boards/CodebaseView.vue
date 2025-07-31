@@ -6,7 +6,7 @@ import { ref,onMounted,computed } from 'vue'
 import { io } from 'socket.io-client'
 import { useAudioCall } from '@/composables/useAudioCall';
 import RemoteAudio from '@/components/RemoteAudio.vue';
-
+import VoiceControls from '@/components/VoiceControls.vue'
 
 
 const route = useRoute()
@@ -81,7 +81,8 @@ const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
 const codebaseId        = route.params.codebase_id
 const socket = io(API_BASE_URI)
 
-const { remoteTracks } = useAudioCall(codebaseId);
+const audio = useAudioCall(codebaseId);          // grab once
+const { remoteTracks } = audio;
 
 socket.on('connect', () => socket.emit('join_codebase', codebaseId))
 
@@ -274,6 +275,7 @@ onMounted(async () => {
     :stream="t.stream"
   />
 
+  <VoiceControls :audio="audio" />
 
     <!-- Page Content -->
     <div class="flex flex-1 bg-gray-900">

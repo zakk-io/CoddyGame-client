@@ -25,5 +25,6 @@ watch(() => props.stream, s => {
       ref="audioRef"
       autoplay
       playsinline
+      class="remote" 
     />
   </template>

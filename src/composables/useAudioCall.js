@@ -1,5 +1,5 @@
 // composables/useAudioCall.js
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed  } from 'vue';
 import { io } from 'socket.io-client';
 
 
@@ -104,10 +104,47 @@ export function useAudioCall(callId) {
     socket.disconnect();
   });
 
+
+
+
+
+/* ────────────────────────────────────────────────────
+   🔈  Media-control state
+   ──────────────────────────────────────────────────── */
+const isMuted     = ref(false);   // my mic
+const remoteMuted = ref(false);   // everyone else
+
+function toggleLocalMute () {
+  isMuted.value = !isMuted.value;
+  localStream.value?.getAudioTracks()
+                  .forEach(t => t.enabled = !isMuted.value);
+}
+
+function toggleRemoteMute () {
+  remoteMuted.value = !remoteMuted.value;
+  // all <audio.remote> come from RemoteAudio.vue
+  document.querySelectorAll('audio.remote')
+          .forEach(a => a.muted = remoteMuted.value);
+}
+
+// how many peers are in the room (me + remote)
+const participantCount = computed(() =>
+  /* localStream.value ? 1 : 0 */ 1 + remoteTracks.value.length
+);
+
+
   /* ------------------------------------------------------------------ */
   /* 🎁  Exposed state ------------------------------------------------ */
+
+
   return {
     localStream,
-    remoteTracks,          //  used by <RemoteAudio v-for>
+    remoteTracks,  
+    /* controls */
+    toggleLocalMute,
+    toggleRemoteMute,
+    isMuted,
+    remoteMuted,
+    participantCount,        //  used by <RemoteAudio v-for>
   };
 }
