@@ -7,6 +7,9 @@ import { io } from 'socket.io-client'
 import 'quill/dist/quill.snow.css'
 import BoardNavbar from '@/components/BoardNavbar.vue'
 const memberInfo = inject('memberInfo')
+import { useAudioCall } from '@/composables/useAudioCall';
+import RemoteAudio from '@/components/RemoteAudio.vue';
+import VoiceControls from '@/components/VoiceControls.vue'
 
 Quill.register('modules/cursors', QuillCursors)      // ✔ register once
 
@@ -14,6 +17,10 @@ Quill.register('modules/cursors', QuillCursors)      // ✔ register once
 const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
 const route        = useRoute()
 const docId        = route.params.document_id
+
+const audio = useAudioCall(docId);          // grab once
+const { remoteTracks } = audio;
+
 
 
 /* ── state ───────────────────────────────────────── */
@@ -171,6 +178,15 @@ onBeforeUnmount(() => {
     </div>
         
 </div>
+
+<RemoteAudio
+    v-for="t in remoteTracks"
+    :key="t.id"
+    :id="t.id"
+    :stream="t.stream"
+  />
+
+  <VoiceControls :audio="audio" />
 
 </template>
 

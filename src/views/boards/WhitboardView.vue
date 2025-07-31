@@ -3,10 +3,18 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 const route = useRoute()
 import { io } from 'socket.io-client'
+import { useAudioCall } from '@/composables/useAudioCall';
+import RemoteAudio from '@/components/RemoteAudio.vue';
+import VoiceControls from '@/components/VoiceControls.vue'
 
 const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
 const socket      = io(API_BASE_URI)
 const whiteboard_id = route.params.whiteboard_id
+
+const audio = useAudioCall(whiteboard_id);          // grab once
+const { remoteTracks } = audio;
+
+
 
 socket.on('connect', () => {               // ✓ fired once handshake is done
   socket.emit('join_whiteboard', whiteboard_id)
@@ -126,5 +134,13 @@ onBeforeUnmount(() => {
             </iframe>
         </div>    
     </div>
-    
+  
+    <RemoteAudio
+    v-for="t in remoteTracks"
+    :key="t.id"
+    :id="t.id"
+    :stream="t.stream"
+  />
+
+  <VoiceControls :audio="audio" />
 </template>
