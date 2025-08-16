@@ -6,6 +6,9 @@ import { io } from 'socket.io-client'
 import { useAudioCall } from '@/composables/useAudioCall';
 import RemoteAudio from '@/components/RemoteAudio.vue';
 import VoiceControls from '@/components/VoiceControls.vue'
+import {useToast} from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-sugar.css';
+const $toast = useToast();
 
 const API_BASE_URI = import.meta.env.VITE_API_BASE_URI
 const socket      = io(API_BASE_URI)
@@ -100,7 +103,7 @@ async function geInstance(){
 //save drwa.io instance 
 async function saveInstance(xml){
     try {
-        await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/resources/${route.params.whiteboard_id}` , {
+        const response = await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/resources/${route.params.whiteboard_id}` , {
             method: "PATCH",
             credentials: 'include',
             headers: {
@@ -108,6 +111,12 @@ async function saveInstance(xml){
             },
             body: JSON.stringify({ content: xml })
         })
+
+    const data = await response.json()
+
+    if(data.code == 401){
+        $toast.error("you have to be login first");
+    }
     } catch (error) {
         console.error("Error fetching document:", error);
     }

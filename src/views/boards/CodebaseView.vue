@@ -8,6 +8,11 @@ import { useAudioCall } from '@/composables/useAudioCall';
 import RemoteAudio from '@/components/RemoteAudio.vue';
 import VoiceControls from '@/components/VoiceControls.vue'
 
+import {useToast} from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-sugar.css';
+const $toast = useToast();
+
+
 
 const route = useRoute()
 
@@ -208,7 +213,7 @@ function handleAi(text) {
 
 async function saveCodeBase(code){
   try {
-    await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/resources/${route.params.codebase_id}` , {
+    const response = await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/resources/${route.params.codebase_id}` , {
       method: 'PATCH',
       body: JSON.stringify({ content : code }),
       headers: {
@@ -216,6 +221,14 @@ async function saveCodeBase(code){
       },
       credentials: 'include'     
     }) 
+
+    const data = await response.json()
+
+    if(data.code == 401){
+        $toast.error("you have to be login first");
+    }
+
+
   } catch (error) {
     console.error("Error saving codebase:", error);
   }

@@ -11,6 +11,11 @@ import { useAudioCall } from '@/composables/useAudioCall';
 import RemoteAudio from '@/components/RemoteAudio.vue';
 import VoiceControls from '@/components/VoiceControls.vue'
 
+
+import {useToast} from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-sugar.css';
+const $toast = useToast();
+
 Quill.register('modules/cursors', QuillCursors)      // ✔ register once
 
 /* ── constants ───────────────────────────────────── */
@@ -141,12 +146,18 @@ async function fetchDocument () {
 }
 
 async function saveDocument () {
-  await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/resources/${docId}`, {
+  const response = await fetch(`${API_BASE_URI}/api/teams/${route.params.team_id}/resources/${docId}`, {
     method: 'PATCH',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ content: contentStr.value })
   })
+
+    const data = await response.json()
+
+    if(data.code == 401){
+        $toast.error("you have to be login first");
+    }
 }
 
 /* ── lifecycle ───────────────────────────────────── */
