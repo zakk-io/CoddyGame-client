@@ -1,10 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { isAuthenticated } from '../util/auth.js'
 
 import TeamLayoutView   from '../layout/TeamLayoutView.vue'
 import UsersLayoutView  from '../layout/UsersLayoutView.vue'
 import TeamsListLayout  from '../layout/TeamsListLayout.vue'
-import LoginLayout  from '../layout/LoginLayout.vue'
-import RegisterLayout  from '../layout/RegisterLayout.vue'
+import LoginLayout  from '../views/authentication/LoginView.vue'
+import RegisterLayout  from '../views/authentication/RegisterView.vue'
 import BoardsLayout  from '../layout/BoardsLayout.vue'
 
 
@@ -85,7 +86,7 @@ const routes = [
     ],
   },
   {
-    path: '/teams/lists',    
+    path: '/',    
     name: 'teams-lists',
     component: TeamsListLayout,
   },
@@ -93,11 +94,13 @@ const routes = [
     path: '/login',    
     name: 'login',
     component: LoginLayout,
+    meta: { public: true },
   },
   {
     path: '/register',    
     name: 'register',
     component: RegisterLayout,
+    meta: { public: true },
   },
 ]
 
@@ -108,38 +111,20 @@ const router = createRouter({
 
 
 
-
-router.beforeEach(async (to, from, next) => {
-  // Skip check for public routes like login/register if needed
-  const publicPaths = ['/login', '/register'];
-  if (publicPaths.includes(to.path)) return next();
-
-  try {
-
-    // Optional: check for team membership on team routes
-    if (to.path.startsWith('/teams/')) {
-      const teamId = to.params.team_id || to.path.split('/')[2];
-      const teamRes = await fetch(`${import.meta.env.VITE_API_BASE_URI}/api/teams/${teamId}/members/me`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: { 'Accept': 'application/json' },
-      });
-
-      const teamResult = await teamRes.json();
-      if (teamResult.code === 403) {
-        const { useToast } = await import('vue-toast-notification');
-        const toast = useToast();
-        toast.error('You are not a member of this team.');
-        return next('/teams/lists');
-      }
-    }
-
-    next(); // Authenticated and allowed
-  } catch (err) {
-    console.error('Auth check failed:', err);
-    return next('/login'); // Fallback: redirect on error
+router.beforeEach((to, from, next) => {
+  // allow public routes
+  if (to.meta.public) {
+    return next()
   }
-});
+
+  // protect everything else
+  if (!isAuthenticated()) {
+    return next({ name: 'login' })
+  }
+
+  next()
+})
+
 
 
 
