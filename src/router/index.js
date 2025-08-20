@@ -72,14 +72,17 @@ const routes = [
           {
             path: 'codebase/:codebase_id',
             component: CodebaseView,
+            meta: { public: true },
           },
           {
             path: 'document/:document_id',
             component: DocumentView,
+            meta: { public: true },
           },
           {
             path: 'whiteboard/:whiteboard_id',
             component: WhitboardView,
+            meta: { public: true },
           },
         ],
       },
