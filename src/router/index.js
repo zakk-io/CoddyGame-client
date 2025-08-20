@@ -111,19 +111,17 @@ const router = createRouter({
 
 
 
-router.beforeEach((to, from, next) => {
-  // allow public routes
-  if (to.meta.public) {
-    return next()
-  }
+router.beforeEach(async (to, from, next) => {
+  if (to.meta.public) return next();
+  try {
+    const res = await fetch(`${API_BASE_URI}/api/auth/me`, {
+      credentials: 'include'
+    });
+    if (res.ok) return next();
+  } catch (e) {}
+  return next({ name: 'login' });
+});
 
-  // protect everything else
-  if (!isAuthenticated()) {
-    return next({ name: 'login' })
-  }
-
-  next()
-})
 
 
 
