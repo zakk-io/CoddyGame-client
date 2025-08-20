@@ -114,11 +114,9 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   if (to.meta.public) return next();
   try {
-    const res = await fetch(`${API_BASE_URI}/api/auth/me`, {
-      credentials: 'include'
-    });
-    if (res.ok) return next();
-  } catch (e) {}
+    const r = await fetch(`${API_BASE_URI}/api/auth/me`, { credentials: 'include' });
+    if (r.ok) return next();
+  } catch {}
   return next({ name: 'login' });
 });
 
