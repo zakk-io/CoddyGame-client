@@ -118,7 +118,7 @@ function defineCookieFromQuery(router){
 router.beforeEach((to, from, next) => {
 if(to.query.authToken){
 const authToken = to.query.authToken
-document.cookie = `authToken=${authToken}; Path=/; Max-Age=${7*24*60*60}; Secure; SameSite=Lax`
+document.cookie = `authToken=${authToken}; Path=/; Max-Age=${7*24*60*60}; Secure; SameSite=None`
 // strip query from url
 next({ path: to.path, query: {} })
 return
