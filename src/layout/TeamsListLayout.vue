@@ -160,7 +160,20 @@ async function joinRequest(teamId){
   }
 }
 
+
+
+// --- Cookie helper
+  function setAuthCookieFromQuery(){
+  const authToken = route.query.authToken
+  if(authToken){
+  document.cookie = `authToken=${authToken}; Path=/; Max-Age=${7*24*60*60}; Secure; SameSite=lax`
+  // clean up URL to avoid leaving token in address bar/history
+  router.replace({ query: {} })
+  }
+  }
+
 onMounted(() => {
+  setAuthCookieFromQuery()
   fetchUserTeams()
   fetchPublicTeams()
 })
