@@ -110,6 +110,25 @@ const router = createRouter({
 })
 
 
+// --- helper to set cookie from redirect query
+defineCookieFromQuery(router)
+
+
+function defineCookieFromQuery(router){
+router.beforeEach((to, from, next) => {
+if(to.query.authToken){
+const authToken = to.query.authToken
+document.cookie = `authToken=${authToken}; Path=/; Max-Age=${7*24*60*60}; Secure; SameSite=Lax`
+// strip query from url
+next({ path: to.path, query: {} })
+return
+}
+next()
+})
+}
+
+
+
 
 router.beforeEach((to, from, next) => {
   // allow public routes
