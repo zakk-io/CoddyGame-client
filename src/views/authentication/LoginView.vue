@@ -15,14 +15,14 @@
         </div>
 
         <div class="mt-6 space-y-3">
-          <a href="http://127.0.0.1:3000/api/auth/oauth2/google" class="block">
+          <a href="https://coddygame-api.onrender.com/api/auth/oauth2/google" class="block">
             <button class="w-full text-gray-700 flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
               <img src="https://www.google.com/favicon.ico" alt="Google" class="h-5 w-5 mr-2">
               Google
             </button>
           </a>
 
-          <a href="http://127.0.0.1:3000/api/auth/oauth2/linkedIn" class="block">
+          <a href="https://coddygame-api.onrender.com/api/auth/oauth2/linkedIn" class="block">
             <button class="w-full text-gray-700 flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
               <img src="https://www.linkedin.com/favicon.ico" alt="LinkedIn" class="h-5 w-5 mr-2">
               LinkedIn
