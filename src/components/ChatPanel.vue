@@ -133,6 +133,11 @@ async function send() {
         credentials: 'include'     
       })
 
+    if (!response.ok) {
+      const body = await res.text().catch(() => '')
+      throw new Error(`HTTP ${res.status} ${res.statusText} ${body}`)
+    }
+
 
       const data = await response.json()
       if(data.code === "201"){
@@ -167,6 +172,11 @@ async function fetchMessages() {
         },
         credentials: 'include'     
     })
+
+    if (!response.ok) {
+      const body = await res.text().catch(() => '')
+      throw new Error(`HTTP ${res.status} ${res.statusText} ${body}`)
+    }
 
     const data = await response.json()
     if (data.code === "200") {
