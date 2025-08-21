@@ -291,7 +291,7 @@ onMounted(async () => {
   <VoiceControls :audio="audio" />
 
     <!-- Page Content -->
-    <div class="flex flex-1 bg-gray-900">
+    <div class="flex flex-1 bg-gray-900 z-0">
       <!-- Editor Panel -->
       <div id="editor" class="flex-1 min-h-0"></div>
 

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="fixed top-0 right-0 h-full w-80 bg-gray-900 text-gray-100 shadow-lg flex flex-col z-50"
+    class="fixed top-0 right-0 h-full w-80 bg-gray-900 text-gray-100 shadow-lg flex flex-col z-50 z-[9999] pointer-events-auto"
   >
     <!-- Header -->
     <div class="flex items-center justify-between p-4 border-b border-gray-700">
@@ -13,7 +13,7 @@
     <!-- Messages -->
     <div
       ref="messagesContainer"
-      class="flex-1 overflow-auto p-4 space-y-4 bg-gray-800"
+      class="messagesContainer flex-1 overflow-auto p-4 space-y-4 bg-gray-800"
     >
 
       <!-- Actual chat messages -->
@@ -67,6 +67,7 @@
         v-model="newMessage"
         @keyup.enter.ctrl.prevent="send"
         rows="1"
+        autofocus
         placeholder="Type a message…"
         class="flex-1 px-3 py-2 bg-gray-800 text-gray-100 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none overflow-auto max-h-24"
       ></textarea>
@@ -88,7 +89,7 @@ import { RouterView, useRoute } from 'vue-router'
 
 const route = useRoute()
 
-let   currentUserId = null
+const currentUserId = ref(null)
 
 const emit = defineEmits(['close'])
 
@@ -111,7 +112,7 @@ socket.on('brodcast_chat_message', (msg) => {
     messages.value.push(msg)
     nextTick(() => {
       const c = messagesContainer.value
-      c.scrollTop = c.scrollHeight
+      if (c) c.scrollTop = c.scrollHeight  
     })
 })
 
@@ -134,8 +135,8 @@ async function send() {
       })
 
     if (!response.ok) {
-      const body = await res.text().catch(() => '')
-      throw new Error(`HTTP ${res.status} ${res.statusText} ${body}`)
+      const body = await response.text().catch(() => '')
+      throw new Error(`HTTP ${response.status} ${response.statusText} ${body}`)
     }
 
 
@@ -174,8 +175,8 @@ async function fetchMessages() {
     })
 
     if (!response.ok) {
-      const body = await res.text().catch(() => '')
-      throw new Error(`HTTP ${res.status} ${res.statusText} ${body}`)
+      const body = await response.text().catch(() => '')
+      throw new Error(`HTTP ${response.status} ${response.statusText} ${body}`)
     }
 
     const data = await response.json()
@@ -190,11 +191,11 @@ async function fetchMessages() {
 
       nextTick(() => {
         const c = messagesContainer.value
-        c.scrollTop = c.scrollHeight
+        if (c) c.scrollTop = c.scrollHeight 
       })
     }
   } catch (error) {
-    console.error('Error creating message:', error)
+    console.error('Error fetching messages:', error)
   }
 }
 
@@ -212,10 +213,10 @@ async function getSenderId () {
 
     const data = await response.json()
     if (data.code === "200") {
-      currentUserId = data.sender_id
+      currentUserId.value = data.sender_id
    }
   } catch (error) {
-    console.error('Error creating message:', error)
+    console.error('Error getting sender id:', error)
   }
 }
 
@@ -231,6 +232,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* CHANGED: this class now matches the div above */
 .messagesContainer::-webkit-scrollbar {
   width: 6px;
 }
@@ -238,4 +240,5 @@ onMounted(async () => {
   background-color: #4b5563;
   border-radius: 3px;
 }
+
 </style>
